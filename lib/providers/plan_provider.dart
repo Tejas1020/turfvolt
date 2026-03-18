@@ -33,7 +33,7 @@ class PlanProvider extends ChangeNotifier {
         'userId': userId,
         'name': name,
         'muscleGroup': muscleGroup,
-        'exerciseIds': exerciseIds,
+        'exerciseIds': exerciseIds.join(','), // Store as comma-separated string
         'createdAt': DateTime.now().toIso8601String(),
       });
       _plans.insert(0, PlanModel.fromDoc(doc));

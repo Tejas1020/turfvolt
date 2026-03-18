@@ -45,9 +45,11 @@ class DatabaseService {
       'name': name,
       'email': email,
       'createdAt': DateTime.now().toIso8601String(),
+      'phone': '',
     };
 
     try {
+      AppLogger.i('DatabaseService.upsertUserProfile: db=${AppwriteConfig.databaseId} col=${AppwriteConfig.colUsers} userId=$userId');
       await _db.createDocument(
         databaseId: AppwriteConfig.databaseId,
         collectionId: AppwriteConfig.colUsers,
@@ -56,6 +58,7 @@ class DatabaseService {
       );
       AppLogger.i('DatabaseService.upsertUserProfile created user doc=$userId');
     } on AppwriteException catch (e) {
+      AppLogger.e('DatabaseService.upsertUserProfile AppwriteException: code=${e.code} message=${e.message}');
       // 409 = document already exists → update it
       if (e.code == 409) {
         await _db.updateDocument(
@@ -67,6 +70,9 @@ class DatabaseService {
         AppLogger.i('DatabaseService.upsertUserProfile updated user doc=$userId');
         return;
       }
+      rethrow;
+    } catch (e, st) {
+      AppLogger.e('DatabaseService.upsertUserProfile unexpected error: $e\n$st');
       rethrow;
     }
   }
