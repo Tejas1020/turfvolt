@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../core/app_colors.dart';
 import '../../core/app_logger.dart';
 import '../../core/app_text_styles.dart';
 import '../../services/auth_service.dart';
-import '../../widgets/glass_panel.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,17 +12,44 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
-    _checkSession();
+    _setupAnimations();
+    _checkSessionAndNavigate();
   }
 
-  Future<void> _checkSession() async {
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
+    );
+
+    _animationController.forward();
+  }
+
+  Future<void> _checkSessionAndNavigate() async {
     AppLogger.i('SplashScreen: checking session');
+
+    // Wait for animation to complete
+    await Future.delayed(const Duration(milliseconds: 2000));
+
     final user = await AuthService.getCurrentUser();
     if (!mounted) return;
+
     if (user != null) {
       AppLogger.i('SplashScreen: session found -> /home');
       context.go('/home');
@@ -35,50 +60,53 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppColors.appBg,
-      body: Center(
-        child: _SplashContent(),
-      ),
-    );
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
-}
-
-class _SplashContent extends StatelessWidget {
-  const _SplashContent();
 
   @override
   Widget build(BuildContext context) {
-    final logo = AppTextStyles.appLogo.copyWith(fontSize: 48, letterSpacing: 4);
-    return GlassPanel(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
-      borderRadius: 24,
-      blurSigma: 12,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('TURFVOLT', style: logo),
-          const SizedBox(height: 8),
-          Text(
-            'Track. Progress. Dominate.',
-            style: AppTextStyles.body.copyWith(
-              fontSize: 14,
-              color: AppColors.textMuted,
+    return Scaffold(
+      backgroundColor: AppColors.appBg,
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'TURFVOLT',
+                  style: AppTextStyles.appLogo.copyWith(
+                    fontSize: 56,
+                    letterSpacing: 6,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Track. Progress. Dominate.',
+                  style: AppTextStyles.bodySecondary.copyWith(
+                    fontSize: 15,
+                    letterSpacing: 1,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    color: AppColors.summerOrange,
+                    strokeWidth: 2.5,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 18),
-          const SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              color: AppColors.lime,
-              strokeWidth: 2,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
-

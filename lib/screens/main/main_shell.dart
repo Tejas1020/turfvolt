@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_colors.dart';
+import '../../core/app_logger.dart';
 import '../../core/app_text_styles.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_toast.dart';
@@ -15,7 +16,7 @@ class MainShell extends StatelessWidget {
 
   const MainShell({super.key, required this.child});
 
-  static const _tabs = ['/home', '/library', '/plans', '/log', '/reports'];
+  static const _tabs = ['/home', '/plans', '/log', '/reports', '/profile'];
 
   int _indexForLocation(String location) {
     for (int i = 0; i < _tabs.length; i++) {
@@ -40,13 +41,20 @@ class MainShell extends StatelessWidget {
         titleSpacing: 20,
         flexibleSpace: ClipRect(
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.neumoBg.withOpacity(0.88),
+                color: AppColors.cardBg.withOpacity(0.92),
                 border: Border(
-                  bottom: BorderSide(color: AppColors.glassBorder, width: 1),
+                  bottom: BorderSide(color: AppColors.borderDefault.withOpacity(0.5), width: 1),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.summerOrange.withOpacity(0.05),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                  ),
+                ],
               ),
             ),
           ),
@@ -55,7 +63,10 @@ class MainShell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('TURFVOLT', style: AppTextStyles.appLogo),
-            Text(formattedDate, style: AppTextStyles.secondary),
+            const SizedBox(height: 2),
+            Text(formattedDate, style: AppTextStyles.secondary.copyWith(
+              fontWeight: FontWeight.w500,
+            )),
           ],
         ),
         actions: [
@@ -70,28 +81,36 @@ class MainShell extends StatelessWidget {
                     context.go('/login');
                   }
                 } catch (e) {
+                  AppLogger.e('Logout error (long press): $e');
                   if (context.mounted) showToast(context, e.toString(), isError: true);
                 }
               },
-              child: CircleAvatar(
-                radius: 19,
-                backgroundColor: Colors.transparent,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.lime, AppColors.accentDark],
-                    ),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.summerOrange, AppColors.sunshineYellow],
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.summerOrange.withOpacity(0.4),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 19,
+                  backgroundColor: Colors.transparent,
                   child: Center(
                     child: Text(
                       userInitial,
                       style: GoogleFonts.dmSans(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.appBg,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -104,18 +123,23 @@ class MainShell extends StatelessWidget {
       body: child,
       bottomNavigationBar: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.neumoBg.withOpacity(0.85),
+              color: AppColors.cardBg.withOpacity(0.92),
               border: Border(
-                top: BorderSide(color: AppColors.glassBorder, width: 1),
+                top: BorderSide(color: AppColors.borderDefault.withOpacity(0.5), width: 1),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.neumoShadow.withOpacity(0.2),
-                  offset: const Offset(0, -2),
-                  blurRadius: 8,
+                  color: AppColors.summerOrange.withOpacity(0.08),
+                  offset: const Offset(0, -4),
+                  blurRadius: 16,
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, -4),
+                  blurRadius: 12,
                 ),
               ],
             ),
@@ -124,38 +148,48 @@ class MainShell extends StatelessWidget {
               onTap: (i) => context.go(_tabs[i]),
               backgroundColor: Colors.transparent,
               elevation: 0,
-          selectedItemColor: AppColors.lime,
-          unselectedItemColor: AppColors.textMuted,
-          type: BottomNavigationBarType.fixed,
-          selectedLabelStyle: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w600),
-          unselectedLabelStyle: GoogleFonts.dmSans(fontSize: 10),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_outlined),
-              activeIcon: Icon(Icons.menu_book),
-              label: 'Library',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt_outlined),
-              activeIcon: Icon(Icons.list_alt),
-              label: 'Plans',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.edit_outlined),
-              activeIcon: Icon(Icons.edit),
-              label: 'Log',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_outlined),
-              activeIcon: Icon(Icons.bar_chart),
-              label: 'Reports',
-            ),
-          ],
+              selectedItemColor: AppColors.summerOrange,
+              unselectedItemColor: AppColors.textMuted,
+              type: BottomNavigationBarType.fixed,
+              selectedLabelStyle: GoogleFonts.dmSans(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+              unselectedLabelStyle: GoogleFonts.dmSans(
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+              ),
+              iconSize: 22,
+              selectedFontSize: 10,
+              unselectedFontSize: 10,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_outlined),
+                  activeIcon: Icon(Icons.home_rounded),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.fitness_center_outlined),
+                  activeIcon: Icon(Icons.fitness_center_rounded),
+                  label: 'Plans',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.edit_outlined),
+                  activeIcon: Icon(Icons.edit_rounded),
+                  label: 'Log',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bar_chart_outlined),
+                  activeIcon: Icon(Icons.bar_chart_rounded),
+                  label: 'Reports',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline),
+                  activeIcon: Icon(Icons.person_rounded),
+                  label: 'Profile',
+                ),
+              ],
             ),
           ),
         ),
@@ -163,4 +197,3 @@ class MainShell extends StatelessWidget {
     );
   }
 }
-

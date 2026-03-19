@@ -1,9 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/app_colors.dart';
 import '../../../core/app_text_styles.dart';
@@ -93,7 +93,9 @@ class _LogScreenState extends State<LogScreen> {
     }
 
     final exP = context.read<ExerciseProvider>();
-    final planExercises = plan.exerciseIds
+    // Collect all unique exercises from all workout days
+    final exerciseIds = plan.exerciseIds;
+    final planExercises = exerciseIds
         .map((id) => exP.exercises.where((e) => e.id == id).cast<ExerciseModel?>().firstOrNull)
         .whereType<ExerciseModel>()
         .toList();
@@ -107,9 +109,12 @@ class _LogScreenState extends State<LogScreen> {
         final sets = _drafts[e.id] ?? const [];
         if (!sets.any((s) => s.done)) continue;
 
-        final payload = sets
-            .map((s) => jsonEncode(SetEntry(reps: s.reps, weight: s.weight, done: s.done).toMap()))
-            .toList();
+        // Serialize sets as JSON string for Appwrite
+        final setsJson = jsonEncode(sets
+            .map((s) => SetEntry(reps: s.reps, weight: s.weight, done: s.done).toMap())
+            .toList());
+
+        print('Creating log: userId=${user.$id}, planId=${plan.id}, exerciseId=${e.id}, sets=$setsJson');
 
         await context.read<LogProvider>().createLog(
               userId: user.$id,
@@ -118,7 +123,7 @@ class _LogScreenState extends State<LogScreen> {
               exerciseName: e.name,
               muscleGroup: e.muscle,
               date: dateStr,
-              sets: payload,
+              sets: setsJson,
               notes: notes,
             );
         saved++;
@@ -180,7 +185,9 @@ class _LogScreenState extends State<LogScreen> {
       onPickDate: _pickDate,
       onSelectPlan: (plan) {
         final exP = context.read<ExerciseProvider>();
-        final planExercises = plan.exerciseIds
+        // Collect all unique exercises from all workout days
+        final exerciseIds = plan.exerciseIds;
+        final planExercises = exerciseIds
             .map((id) => exP.exercises.where((e) => e.id == id).cast<ExerciseModel?>().firstOrNull)
             .whereType<ExerciseModel>()
             .toList();
@@ -213,33 +220,51 @@ class _SelectStep extends StatelessWidget {
     final dateLabel = DateFormat('yyyy-MM-dd').format(selectedDate);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('LOG WORKOUT', style: AppTextStyles.screenTitle),
+          Text('LOG WORKOUT', style: AppTextStyles.screenTitle.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.lime,
+          )),
           const SizedBox(height: 6),
-          Text('Select a date and a plan to start logging.', style: AppTextStyles.secondary),
-          const SizedBox(height: 14),
+          Text('Select a date and a plan to start logging.',
+            style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted)),
+          const SizedBox(height: 16),
           GestureDetector(
             onTap: onPickDate,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.inputBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.borderDefault, width: 0.5),
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.borderLight.withOpacity(0.4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.electricBlue.withOpacity(0.05),
+                    offset: const Offset(0, 2),
+                    blurRadius: 8,
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(dateLabel, style: AppTextStyles.body),
-                  const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.textDim),
+                  Text(dateLabel, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500)),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.electricBlue.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.electricBlue),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           if (plansP.loading)
             const Center(
               child: Padding(
@@ -248,9 +273,22 @@ class _SelectStep extends StatelessWidget {
               ),
             )
           else if (plans.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text('No plans yet. Create one in Plans.', style: AppTextStyles.secondary),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderLight.withOpacity(0.4)),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.fitness_center_outlined, size: 48, color: AppColors.textDim),
+                  const SizedBox(height: 12),
+                  Text('No plans yet', style: AppTextStyles.exerciseName.copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 6),
+                  Text('Create a plan in Plans tab', style: AppTextStyles.micro.copyWith(color: AppColors.textMuted)),
+                ],
+              ),
             )
           else
             ...plans.map((plan) => GestureDetector(
@@ -259,32 +297,29 @@ class _SelectStep extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.neumoBg,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
+                      color: AppColors.cardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.borderLight.withOpacity(0.4)),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.neumoHighlight.withOpacity(0.18),
-                          offset: const Offset(-1, -1),
-                          blurRadius: 3,
-                        ),
-                        BoxShadow(
-                          color: AppColors.neumoShadow.withOpacity(0.3),
-                          offset: const Offset(1, 1),
-                          blurRadius: 4,
+                          color: AppColors.lime.withOpacity(0.05),
+                          offset: const Offset(0, 2),
+                          blurRadius: 8,
                         ),
                       ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(plan.name, style: AppTextStyles.cardTitle),
-                            const SizedBox(height: 4),
-                            Text('${plan.exerciseIds.length} exercises', style: AppTextStyles.micro),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(plan.name, style: AppTextStyles.cardTitle.copyWith(fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 4),
+                              Text('${plan.totalExercises} exercises', style: AppTextStyles.micro.copyWith(color: AppColors.textMuted)),
+                            ],
+                          ),
                         ),
                         MuscleChip(muscle: plan.muscleGroup),
                       ],
@@ -340,34 +375,43 @@ class _LogStep extends StatelessWidget {
     final sets = drafts[active.id] ?? const [];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              IconButton(
-                onPressed: onBack,
-                icon: const Icon(Icons.arrow_back),
-                color: AppColors.textMuted,
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.borderLight.withOpacity(0.3)),
+                ),
+                child: IconButton(
+                  onPressed: onBack,
+                  icon: const Icon(Icons.arrow_back_rounded, color: AppColors.lime),
+                  padding: const EdgeInsets.all(8),
+                ),
               ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       plan.name,
-                      style: AppTextStyles.screenTitle.copyWith(fontSize: 18),
+                      style: AppTextStyles.screenTitle.copyWith(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.lime),
                     ),
-                    Text(dateStr, style: AppTextStyles.secondary),
+                    const SizedBox(height: 2),
+                    Text(dateStr, style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
           SizedBox(
-            height: 38,
+            height: 40,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: exercises.length,
@@ -377,43 +421,64 @@ class _LogStep extends StatelessWidget {
                 final isDone = exerciseHasDoneSet(e.id);
                 final bg = isActive ? AppColors.lime : AppColors.cardBg;
                 final fg = isActive ? AppColors.appBg : (isDone ? AppColors.lime : AppColors.textMuted);
-                final border = isActive
-                    ? null
-                    : Border.all(
-                        color: isDone ? AppColors.exerciseDoneBorder : AppColors.borderDefault,
-                        width: 0.5,
-                      );
 
                 return GestureDetector(
                   onTap: () => onSelectExercise(i),
                   child: Container(
                     margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: bg,
-                      borderRadius: BorderRadius.circular(99),
-                      border: border,
-                    ),
-                    child: Text(
-                      '${isDone && !isActive ? '✓ ' : ''}${e.name}',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: fg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isActive ? AppColors.lime : (isDone ? AppColors.electricBlue : AppColors.borderDefault),
+                        width: isActive ? 0 : 1,
                       ),
+                      boxShadow: isActive ? [
+                        BoxShadow(
+                          color: AppColors.lime.withOpacity(0.3),
+                          offset: const Offset(0, 2),
+                          blurRadius: 6,
+                        ),
+                      ] : null,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isDone && !isActive) ...[
+                          const Icon(Icons.check_circle, size: 14, color: AppColors.lime),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          e.name,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: fg,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
               },
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderDefault, width: 0.5),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.borderLight.withOpacity(0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.electricBlue.withOpacity(0.06),
+                  offset: const Offset(0, 4),
+                  blurRadius: 12,
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,30 +487,35 @@ class _LogStep extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.muscleBg(active.muscle),
-                        borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.muscleBg(active.muscle), AppColors.muscleBg(active.muscle).withOpacity(0.7)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.muscleText(active.muscle).withOpacity(0.3)),
                       ),
-                      child: Center(child: Text(active.icon, style: const TextStyle(fontSize: 18))),
+                      child: Center(child: Icon(active.icon, size: 20, color: AppColors.textPrimary)),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(active.name, style: AppTextStyles.cardTitle),
+                          Text(active.name, style: AppTextStyles.cardTitle.copyWith(fontWeight: FontWeight.w700, fontSize: 16)),
                           const SizedBox(height: 2),
-                          Text(active.desc, style: AppTextStyles.micro),
+                          Text(active.muscle, style: AppTextStyles.micro.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 _SetTableHeader(),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 ...List.generate(sets.length, (i) {
                   final s = sets[i];
                   return _SetRow(
@@ -458,28 +528,60 @@ class _LogStep extends StatelessWidget {
                   onTap: () => onAddSet(active.id),
                   child: Container(
                     width: double.infinity,
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    margin: const EdgeInsets.only(top: 6),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.textDim, width: 0.5),
+                      color: AppColors.inputBg,
+                      border: Border.all(color: AppColors.borderDefault, width: 0.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Center(child: Text('+ Add set', style: AppTextStyles.secondary)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_circle_outline, size: 16, color: AppColors.textMuted),
+                        const SizedBox(width: 6),
+                        Text('+ Add set', style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 TextField(
                   controller: notesCtrl,
                   maxLines: 3,
-                  decoration: const InputDecoration(hintText: 'Notes for this workout...'),
+                  decoration: InputDecoration(
+                    hintText: 'Notes for this workout...',
+                    hintStyle: GoogleFonts.dmSans(color: AppColors.textDim, fontSize: 13),
+                    filled: true,
+                    fillColor: AppColors.inputBg,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.borderDefault, width: 0.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
                 SizedBox(
-                  width: double.infinity,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: onFinish,
-                    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 52)),
-                    child: const Text('Finish & Save Workout'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 0),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.check_circle_outline, size: 18, color: AppColors.appBg),
+                        const SizedBox(width: 8),
+                        Text('Finish & Save Workout', style: GoogleFonts.dmSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        )),
+                      ],
+                    ),
                   ),
                 ),
               ],

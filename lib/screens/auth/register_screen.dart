@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_colors.dart';
+import '../../core/app_logger.dart';
 import '../../core/app_text_styles.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_toast.dart';
@@ -63,6 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       showToast(context, 'Account created');
       context.go('/home');
     } catch (e) {
+      AppLogger.e('Register error: $e');
       if (!mounted) return;
       showToast(context, e.toString(), isError: true);
     } finally {
@@ -288,10 +290,10 @@ class _PasswordStrength extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color activeColorForIndex(int i) {
-      if (strength <= 1) return i == 0 ? AppColors.coral : AppColors.textDim;
-      if (strength == 2) return i <= 1 ? AppColors.amber : AppColors.textDim;
-      if (strength >= 4) return AppColors.lime;
-      return i <= 2 ? AppColors.amber : AppColors.textDim;
+      if (strength <= 1) return i == 0 ? AppColors.error : AppColors.textDim;
+      if (strength == 2) return i <= 1 ? AppColors.warning : AppColors.textDim;
+      if (strength >= 4) return AppColors.success;
+      return i <= 2 ? AppColors.warning : AppColors.textDim;
     }
 
     return Row(

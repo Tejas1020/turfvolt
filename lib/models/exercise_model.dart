@@ -1,9 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
 class ExerciseModel {
   final String id;
   final String name;
   final String muscle;
   final String desc;
-  final String icon;
+  final IconData icon;
   final bool isCustom;
   final String? docId;
 
@@ -17,12 +20,31 @@ class ExerciseModel {
     this.docId,
   });
 
+  static IconData _getIconData(String? iconKey) {
+    switch (iconKey) {
+      case 'chest':
+        return PhosphorIcons.barbell();
+      case 'back':
+        return PhosphorIcons.barbell();
+      case 'shoulders':
+        return PhosphorIcons.barbell();
+      case 'arms':
+        return PhosphorIcons.armchair();
+      case 'legs':
+        return PhosphorIcons.footprints();
+      case 'core':
+        return PhosphorIcons.target();
+      default:
+        return PhosphorIcons.barbell();
+    }
+  }
+
   factory ExerciseModel.fromBuiltIn(Map<String, String> data) => ExerciseModel(
     id: data['id'] ?? '',
     name: data['name'] ?? '',
     muscle: data['muscle'] ?? '',
     desc: data['desc'] ?? '',
-    icon: data['icon'] ?? '💪',
+    icon: _getIconData(data['icon']),
     isCustom: false,
   );
 
@@ -31,7 +53,7 @@ class ExerciseModel {
     name: data['name'] ?? '',
     muscle: data['muscleGroup'] ?? '',
     desc: data['description'] ?? '',
-    icon: '✨',
+    icon: PhosphorIcons.sparkle(),
     isCustom: true,
     docId: docId,
   );

@@ -4,12 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_colors.dart';
+import '../../core/app_logger.dart';
 import '../../core/app_text_styles.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/appwrite_service.dart';
 import '../../widgets/app_toast.dart';
 import '../../widgets/glass_panel.dart';
-import 'package:appwrite/appwrite.dart' show Locale;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -50,21 +49,11 @@ class _LoginScreenState extends State<LoginScreen> {
       showToast(context, 'Logged in');
       context.go('/home');
     } catch (e) {
+      AppLogger.e('Login error: $e');
       if (!mounted) return;
       showToast(context, e.toString(), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _ping() async {
-    try {
-      await Locale(AppwriteService.client).get();
-      if (!mounted) return;
-      showToast(context, 'Appwrite ping OK');
-    } catch (e) {
-      if (!mounted) return;
-      showToast(context, e.toString(), isError: true);
     }
   }
 
@@ -211,23 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: OutlinedButton(
-                      onPressed: _ping,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.lime,
-                        side: const BorderSide(color: AppColors.borderDefault, width: 0.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text(
-                        'Send a ping',
-                        style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600),
-                      ),
                     ),
                   ),
                 ],

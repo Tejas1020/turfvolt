@@ -99,12 +99,33 @@ class DatabaseService {
     return <String, dynamic>{...doc.data, '\$id': doc.$id};
   }
 
+  // Legacy createPlan for backward compatibility with old schema
+  static Future<Map<String, dynamic>> createPlanLegacy(Map<String, dynamic> data) async {
+    final doc = await _db.createDocument(
+      databaseId: AppwriteConfig.databaseId,
+      collectionId: AppwriteConfig.colPlans,
+      documentId: ID.unique(),
+      data: data,
+    );
+    return <String, dynamic>{...doc.data, '\$id': doc.$id};
+  }
+
   static Future<void> deletePlan(String planId) async {
     await _db.deleteDocument(
       databaseId: AppwriteConfig.databaseId,
       collectionId: AppwriteConfig.colPlans,
       documentId: planId,
     );
+  }
+
+  static Future<Map<String, dynamic>> updatePlan(String planId, Map<String, dynamic> data) async {
+    final doc = await _db.updateDocument(
+      databaseId: AppwriteConfig.databaseId,
+      collectionId: AppwriteConfig.colPlans,
+      documentId: planId,
+      data: data,
+    );
+    return <String, dynamic>{...doc.data, '\$id': doc.$id};
   }
 
   // Logs

@@ -19,7 +19,7 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
-  String period = '30'; // 7 | 30 | 90
+  String period = '30';
   String? selectedExerciseId;
 
   DateTime _startDateForPeriod() {
@@ -59,12 +59,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
     allExerciseIds.sort();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('REPORTS', style: AppTextStyles.screenTitle),
-          const SizedBox(height: 12),
+          Text('ANALYTICS', style: AppTextStyles.screenTitle.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.lime,
+          )),
+          const SizedBox(height: 4),
+          Text('Track your progress over time', style: AppTextStyles.secondary.copyWith(
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w500,
+          )),
+          const SizedBox(height: 16),
           Row(
             children: periodOptions.map((opt) {
               final isActive = period == opt.$1;
@@ -73,20 +81,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 child: GestureDetector(
                   onTap: () => setState(() => period = opt.$1),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: isActive ? AppColors.lime : AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(99),
-                      border: isActive
-                          ? null
-                          : Border.all(color: AppColors.borderDefault, width: 0.5),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isActive ? AppColors.lime : AppColors.borderLight,
+                        width: isActive ? 0 : 1,
+                      ),
+                      boxShadow: isActive ? [
+                        BoxShadow(
+                          color: AppColors.lime.withOpacity(0.3),
+                          offset: const Offset(0, 3),
+                          blurRadius: 8,
+                        ),
+                      ] : null,
                     ),
                     child: Text(
                       opt.$2,
                       style: GoogleFonts.dmSans(
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                         color: isActive ? AppColors.appBg : AppColors.textMuted,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ),
@@ -94,21 +111,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
               );
             }).toList(),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: StatCard(value: '$workouts', label: 'Workouts')),
+              Expanded(child: StatCard(value: '$workouts', label: 'Workouts', icon: Icons.fitness_center_rounded)),
               const SizedBox(width: 10),
-              Expanded(child: StatCard(value: '$totalSets', label: 'Total Sets')),
+              Expanded(child: StatCard(value: '$totalSets', label: 'Total Sets', icon: Icons.repeat_rounded)),
               const SizedBox(width: 10),
-              Expanded(child: StatCard(value: '${volume.toStringAsFixed(0)}kg', label: 'Volume')),
+              Expanded(child: StatCard(value: '${volume.toStringAsFixed(0)}kg', label: 'Volume', icon: Icons.local_fire_department_rounded)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           _Card(
             title: 'Activity — last 14 days',
             child: SizedBox(
-              height: 100,
+              height: 120,
               child: _ActivityChart(logs: logP.logs),
             ),
           ),
@@ -124,7 +141,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 38,
+                  height: 42,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: allExerciseIds.length,
@@ -137,20 +154,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         onTap: () => setState(() => selectedExerciseId = id),
                         child: Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
                             color: isActive ? AppColors.lime : AppColors.cardBg,
-                            borderRadius: BorderRadius.circular(99),
-                            border: isActive
-                                ? null
-                                : Border.all(color: AppColors.borderDefault, width: 0.5),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isActive ? AppColors.lime : AppColors.borderLight,
+                              width: isActive ? 0 : 1,
+                            ),
+                            boxShadow: isActive ? [
+                              BoxShadow(
+                                color: AppColors.lime.withOpacity(0.3),
+                                offset: const Offset(0, 3),
+                                blurRadius: 8,
+                              ),
+                            ] : null,
                           ),
                           child: Text(
                             label,
                             style: GoogleFonts.dmSans(
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                               color: isActive ? AppColors.appBg : AppColors.textMuted,
+                              letterSpacing: 0.3,
                             ),
                           ),
                         ),
@@ -160,7 +186,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
                 const SizedBox(height: 12),
                 if (selectedExerciseId == null)
-                  Text('Select an exercise to view trend.', style: AppTextStyles.secondary)
+                  Text('Select an exercise to view trend.',
+                    style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted))
                 else
                   _StrengthChart(
                     logs: logs.where((l) => l.exerciseId == selectedExerciseId).toList(),
@@ -182,28 +209,35 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.neumoBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.cardBg, AppColors.cardBg.withOpacity(0.9)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLight.withOpacity(0.4)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.neumoHighlight.withOpacity(0.2),
-            offset: const Offset(-2, -2),
-            blurRadius: 4,
+            color: AppColors.electricBlue.withOpacity(0.06),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
           ),
           BoxShadow(
-            color: AppColors.neumoShadow.withOpacity(0.35),
-            offset: const Offset(2, 2),
-            blurRadius: 6,
+            color: Colors.black.withOpacity(0.2),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.exerciseName),
+          Text(title, style: AppTextStyles.exerciseName.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          )),
           const SizedBox(height: 12),
           child,
         ],
@@ -240,9 +274,16 @@ class _ActivityChart extends StatelessWidget {
             barRods: [
               BarChartRodData(
                 toY: e.value.toDouble(),
-                color: e.value > 0 ? AppColors.lime : AppColors.cardBg,
-                width: 12,
-                borderRadius: BorderRadius.circular(4),
+                gradient: LinearGradient(
+                  colors: [
+                    e.value > 0 ? AppColors.lime : AppColors.cardBg,
+                    e.value > 0 ? AppColors.cyan : AppColors.cardBg,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                width: 14,
+                borderRadius: BorderRadius.circular(6),
               ),
             ],
           );
@@ -259,7 +300,7 @@ class _ActivityChart extends StatelessWidget {
                   angle: -0.785,
                   child: Text(
                     labels[idx],
-                    style: GoogleFonts.dmSans(fontSize: 8, color: AppColors.textDim),
+                    style: GoogleFonts.dmSans(fontSize: 9, color: AppColors.textDim, fontWeight: FontWeight.w500),
                   ),
                 );
               },
@@ -296,40 +337,44 @@ class _VolumeByMuscle extends StatelessWidget {
     final maxVol = entries.isEmpty ? 1.0 : entries.first.value;
 
     if (entries.isEmpty) {
-      return Text('No data yet.', style: AppTextStyles.secondary);
+      return Text('No data yet.', style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted));
     }
 
     return Column(
       children: entries.map((e) {
         final mg = e.key;
         final vol = e.value;
+        final color = AppColors.muscleText(mg);
         return Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(mg, style: AppTextStyles.secondary),
+                Text(mg, style: AppTextStyles.secondary.copyWith(fontWeight: FontWeight.w500)),
                 Text(
                   '${vol.toStringAsFixed(0)} kg',
                   style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    color: AppColors.lime,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    color: color,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             ClipRRect(
               borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: (vol / maxVol).clamp(0, 1),
-                backgroundColor: AppColors.inputBg,
-                valueColor: AlwaysStoppedAnimation(AppColors.muscleText(mg)),
-                minHeight: 6,
+              child: SizedBox(
+                height: 8,
+                child: LinearProgressIndicator(
+                  value: (vol / maxVol).clamp(0, 1),
+                  backgroundColor: AppColors.inputBg,
+                  valueColor: AlwaysStoppedAnimation(color),
+                  minHeight: 8,
+                ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
           ],
         );
       }).toList(),
@@ -346,7 +391,7 @@ class _StrengthChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sorted = [...logs]..sort((a, b) => a.date.compareTo(b.date));
-    if (sorted.isEmpty) return Text('No logs for this exercise.', style: AppTextStyles.secondary);
+    if (sorted.isEmpty) return Text('No logs for this exercise.', style: AppTextStyles.secondary.copyWith(color: AppColors.textMuted));
 
     final points = sorted.map((l) {
       double best = 0;
@@ -379,9 +424,15 @@ class _StrengthChart extends StatelessWidget {
                   barRods: [
                     BarChartRodData(
                       toY: e.value,
-                      color: isLatest ? AppColors.lime : AppColors.chartRestBar,
-                      width: 16,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      gradient: LinearGradient(
+                        colors: isLatest
+                            ? [AppColors.lime, AppColors.cyan]
+                            : [AppColors.cardBg, AppColors.cardBg],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      width: 18,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                     ),
                   ],
                 );
@@ -398,14 +449,33 @@ class _StrengthChart extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          diff >= 0
-              ? '↑ ${diff.toStringAsFixed(1)} kg since first log'
-              : '↓ ${diff.abs().toStringAsFixed(1)} kg since first log',
-          style: GoogleFonts.dmSans(
-            fontSize: 12,
-            color: diff >= 0 ? AppColors.lime : AppColors.coral,
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: (diff >= 0 ? AppColors.lime : AppColors.coral).withOpacity(0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                diff >= 0 ? Icons.trending_up : Icons.trending_down,
+                size: 16,
+                color: diff >= 0 ? AppColors.lime : AppColors.coral,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                diff >= 0
+                    ? '+${diff.toStringAsFixed(1)} kg since first log'
+                    : '−${diff.abs().toStringAsFixed(1)} kg since first log',
+                style: GoogleFonts.dmSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: diff >= 0 ? AppColors.lime : AppColors.coral,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -420,4 +490,3 @@ extension _FirstOrNull<E> on Iterable<E> {
     return it.current;
   }
 }
-

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/app_colors.dart';
@@ -10,9 +10,14 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/plan_provider.dart';
+import '../../../widgets/animated_streak_counter.dart';
 import '../../../widgets/consistency_matrix.dart';
 import '../../../widgets/lime_button.dart';
-import '../../../widgets/stat_card.dart';
+import '../../../widgets/weekly_progress_bar.dart';
+import '../../../widgets/challenge_card.dart';
+import '../../../widgets/activity_feed_item.dart';
+import '../../../widgets/skeleton_loader.dart';
+import '../../../widgets/todays_workout_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,8 +26,29 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _loaded = false;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -38,122 +64,74 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<LogProvider>().loadLogs(user.$id);
       context.read<ExerciseProvider>().loadCustomExercises(user.$id);
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fadeController.forward();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final logP = context.watch<LogProvider>();
     final planP = context.watch<PlanProvider>();
+    final auth = context.watch<AuthProvider>();
 
-    final plans = planP.plans.take(3).toList();
+    final today = DateTime.now();
+    final todayWeekday = Weekday.values[today.weekday - 1];
+    final dayName = DateFormat('EEEE').format(today);
+    final userName = auth.user?.name?.split(' ').first ?? 'Fitness Warrior';
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Today's summary", style: AppTextStyles.label),
-          const SizedBox(height: 8),
-          Row(
+    // Get today's plans
+    final todaysPlans = planP.plans.where((plan) {
+      return plan.workoutDays.any((day) => day.weekday == todayWeekday);
+    }).toList();
+
+    final displayPlans = todaysPlans.isNotEmpty ? todaysPlans : planP.plans;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (auth.user != null) {
+          await context.read<PlanProvider>().loadPlans(auth.user!.$id);
+          await context.read<LogProvider>().loadLogs(auth.user!.$id);
+        }
+      },
+      color: AppColors.summerOrange,
+      backgroundColor: AppColors.cardBg,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: StatCard(
-                  value: '${logP.exercisesLoggedToday}',
-                  label: 'Exercises',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: StatCard(
-                  value: '${logP.setsDoneToday}',
-                  label: 'Sets',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: StatCard(
-                  value: '${logP.volumeToday.toStringAsFixed(0)}kg',
-                  label: 'Volume',
-                ),
-              ),
+              _buildHeroHeader(userName, dayName, todayWeekday),
+              _buildTodaysWorkout(displayPlans, todaysPlans.isNotEmpty, dayName),
+              _buildWeeklyProgress(logP),
+              _buildChallengesSection(),
+              _buildActivityFeed(),
+              _buildConsistencySection(logP),
+              _buildQuickActions(),
+              const SizedBox(height: 24),
             ],
           ),
-          const SizedBox(height: 16),
-          _StreakBanner(streak: logP.currentStreak),
-          const SizedBox(height: 16),
-          ConsistencyMatrix(logs: logP.logs),
-          const SizedBox(height: 16),
-          Text('Your plans', style: AppTextStyles.label),
-          const SizedBox(height: 8),
-          if (planP.loading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: AppColors.lime, strokeWidth: 2),
-              ),
-            )
-          else if (plans.isEmpty)
-            _EmptyPlansCard(
-              onCreate: () => context.go('/plans'),
-            )
-          else
-            ...plans.map((p) => _PlanCard(plan: p)),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _QuickCard(
-                  icon: '📚',
-                  title: 'Browse Library',
-                  subtitle: 'All exercises',
-                  onTap: () => context.go('/library'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _QuickCard(
-                  icon: '📊',
-                  title: 'View Reports',
-                  subtitle: 'Your progress',
-                  onTap: () => context.go('/reports'),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
-}
 
-class _StreakBanner extends StatelessWidget {
-  final int streak;
-  const _StreakBanner({required this.streak});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHeroHeader(String userName, String dayName, Weekday todayWeekday) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.streakBgStart, AppColors.streakBgEnd],
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          colors: [
+            AppColors.cardBg.withOpacity(0.8),
+            AppColors.appBg,
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neumoHighlight.withOpacity(0.15),
-            offset: const Offset(-2, -2),
-            blurRadius: 4,
-          ),
-          BoxShadow(
-            color: AppColors.neumoShadow.withOpacity(0.3),
-            offset: const Offset(2, 2),
-            blurRadius: 6,
-          ),
-        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,116 +139,231 @@ class _StreakBanner extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Text('🔥 ', style: TextStyle(fontSize: 13)),
-                  Text(
-                    'Current streak',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.lime,
-                    ),
-                  ),
-                ],
+              Text(
+                'Hello, $userName!',
+                style: AppTextStyles.displayHero.copyWith(
+                  fontSize: 28,
+                  letterSpacing: 0.5,
+                ),
               ),
               const SizedBox(height: 6),
               Text(
-                "Keep it up! Log today's workout.",
-                style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.streakSubtitle),
+                '$dayName • Ready to crush it?',
+                style: AppTextStyles.bodySecondary.copyWith(fontSize: 15),
               ),
             ],
           ),
-          Text('$streak DAYS', style: AppTextStyles.streakNumber),
+          StreakBadge(streak: context.watch<LogProvider>().currentStreak),
         ],
       ),
     );
   }
-}
 
-class _EmptyPlansCard extends StatelessWidget {
-  final VoidCallback onCreate;
-  const _EmptyPlansCard({required this.onCreate});
+  Widget _buildTodaysWorkout(List<PlanModel> plans, bool isToday, String dayName) {
+    if (plans.isEmpty) {
+      return _emptyWorkoutCard();
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.neumoBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neumoHighlight.withOpacity(0.2),
-            offset: const Offset(-2, -2),
-            blurRadius: 4,
+    return Column(
+      children: plans.take(1).map((plan) {
+        return TodaysWorkoutCard(
+          plan: plan,
+          isToday: isToday,
+          dayName: dayName,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildWeeklyProgress(LogProvider logP) {
+    final weeklyGoal = 5;
+    final completedThisWeek = logP.logs
+        .where((log) {
+          final now = DateTime.now();
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          final logDate = DateTime.parse(log.date);
+          return logDate.isAfter(startOfWeek);
+        })
+        .length;
+    final lastWeekWorkouts = 3; // Would be calculated from actual data
+
+    return WeeklyProgressBar(
+      workoutsCompleted: completedThisWeek,
+      weeklyGoal: weeklyGoal,
+      lastWeekWorkouts: lastWeekWorkouts,
+    );
+  }
+
+  Widget _buildChallengesSection() {
+    final now = DateTime.now();
+    final challenges = [
+      ChallengeCard(
+        title: '30-Day Strength',
+        description: 'Complete 30 workouts this month',
+        currentProgress: 12,
+        target: 30,
+        endDate: now.add(const Duration(days: 18)),
+        icon: Icons.fitness_center,
+        accentColor: AppColors.summerOrange,
+      ),
+      ChallengeCard(
+        title: 'Cardio Blitz',
+        description: '5 cardio sessions this week',
+        currentProgress: 2,
+        target: 5,
+        endDate: now.add(Duration(days: 4 - now.weekday)),
+        icon: Icons.favorite,
+        accentColor: AppColors.oceanBlue,
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Active Challenges', style: AppTextStyles.headline),
+              TextButton(
+                onPressed: () {},
+                child: const Text('View All'),
+              ),
+            ],
           ),
-          BoxShadow(
-            color: AppColors.neumoShadow.withOpacity(0.35),
-            offset: const Offset(2, 2),
-            blurRadius: 6,
+          const SizedBox(height: 12),
+          ChallengeList(challenges: challenges),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityFeed() {
+    final activities = SyntheticActivityGenerator.generateFeed(count: 3);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Activity Feed', style: AppTextStyles.headline),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.summerOrange.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'LIVE',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.summerOrange,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ActivityFeed(items: activities),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConsistencySection(LogProvider logP) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Consistency', style: AppTextStyles.headline),
+              Text('Last 16 weeks', style: AppTextStyles.caption),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ConsistencyMatrix(logs: logP.logs),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: _QuickCard(
+              icon: Icons.auto_stories_outlined,
+              iconColor: AppColors.oceanBlue,
+              iconBg: AppColors.oceanBlue.withOpacity(0.15),
+              title: 'Browse Library',
+              subtitle: 'All exercises',
+              onTap: () => context.go('/library'),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _QuickCard(
+              icon: Icons.insights_outlined,
+              iconColor: AppColors.success,
+              iconBg: AppColors.success.withOpacity(0.15),
+              title: 'View Reports',
+              subtitle: 'Your progress',
+              onTap: () => context.go('/reports'),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _emptyWorkoutCard() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.cardBg,
+            AppColors.cardBg.withOpacity(0.9),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderDefault),
       ),
       child: Column(
         children: [
-          Text('No plans yet. Build your first plan!', style: AppTextStyles.body.copyWith(color: AppColors.textDim)),
-          const SizedBox(height: 10),
-          LimeButton(label: 'Create Plan', onPressed: onCreate),
-        ],
-      ),
-    );
-  }
-}
-
-class _PlanCard extends StatelessWidget {
-  final PlanModel plan;
-  const _PlanCard({required this.plan});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.neumoBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.neumoHighlight.withOpacity(0.18),
-            offset: const Offset(-1, -1),
-            blurRadius: 3,
+          SkeletonShapes.avatar(size: 60),
+          const SizedBox(height: 16),
+          Text(
+            'No workout scheduled',
+            style: AppTextStyles.headline,
           ),
-          BoxShadow(
-            color: AppColors.neumoShadow.withOpacity(0.3),
-            offset: const Offset(1, 1),
-            blurRadius: 4,
+          const SizedBox(height: 6),
+          Text(
+            'Create a plan or browse exercises to get started',
+            style: AppTextStyles.bodySecondary,
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(plan.name, style: AppTextStyles.exerciseName),
-              const SizedBox(height: 2),
-              Text('${plan.exerciseIds.length} exercises · ${plan.muscleGroup}', style: AppTextStyles.micro),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () => context.go('/log'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lime,
-              foregroundColor: AppColors.appBg,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              minimumSize: const Size(0, 0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: LimeButton(
+              label: 'Create & Start Workout',
+              onPressed: () => context.go('/plans/create'),
+              icon: Icons.add,
+              fullWidth: true,
             ),
-            child: Text('Start', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -278,14 +371,19 @@ class _PlanCard extends StatelessWidget {
   }
 }
 
+// Quick action card
 class _QuickCard extends StatelessWidget {
-  final String icon;
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
   const _QuickCard({
     required this.icon,
+    required this.iconColor,
+    required this.iconBg,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -298,34 +396,34 @@ class _QuickCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.neumoBg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.neumoHighlight.withOpacity(0.18),
-              offset: const Offset(-1, -1),
-              blurRadius: 3,
-            ),
-            BoxShadow(
-              color: AppColors.neumoShadow.withOpacity(0.3),
-              offset: const Offset(1, 1),
-              blurRadius: 4,
-            ),
-          ],
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: iconColor.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 6),
-            Text(title, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500)),
-            const SizedBox(height: 2),
-            Text(subtitle, style: AppTextStyles.micro),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: AppTextStyles.cardTitle.copyWith(fontSize: 13),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: AppTextStyles.micro,
+            ),
           ],
         ),
       ),
     );
   }
 }
-

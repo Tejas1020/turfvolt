@@ -29,20 +29,24 @@ class LogProvider extends ChangeNotifier {
     required String exerciseName,
     required String muscleGroup,
     required String date,
-    required List<dynamic> sets,
+    required dynamic sets, // Can be List<Map> or JSON string depending on schema
     String notes = '',
   }) async {
     try {
-      final doc = await DatabaseService.createLog({
+      final data = <String, dynamic>{
         'userId': userId,
         'planId': planId,
         'exerciseId': exerciseId,
         'exerciseName': exerciseName,
         'muscleGroup': muscleGroup,
         'date': date,
-        'sets': sets,
         'notes': notes,
-      });
+      };
+
+      // Add sets field
+      data['sets'] = sets;
+
+      final doc = await DatabaseService.createLog(data);
       _logs.insert(0, LogModel.fromDoc(doc));
       notifyListeners();
     } catch (e) {
