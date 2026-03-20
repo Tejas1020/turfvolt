@@ -90,7 +90,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -129,7 +129,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -176,7 +176,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -228,7 +228,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -262,7 +262,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -334,7 +334,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -413,7 +413,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {
@@ -465,7 +465,7 @@ class PlanProvider extends ChangeNotifier {
         updatedAt: DateTime.now().toIso8601String(),
       );
 
-      await DatabaseService.updatePlan(planId, updatedPlan.toMap());
+      await DatabaseService.updatePlan(planId, updatedPlan.toUpdateMap());
 
       final index = _plans.indexWhere((p) => p.id == planId);
       if (index != -1) {

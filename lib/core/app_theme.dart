@@ -5,17 +5,17 @@ import 'app_colors.dart';
 ThemeData appTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: AppColors.appBg,
-  primaryColor: AppColors.summerOrange,
+  primaryColor: AppColors.roseGold,
   colorScheme: ColorScheme.dark(
-    primary: AppColors.summerOrange,
-    secondary: AppColors.oceanBlue,
-    tertiary: AppColors.success,
+    primary: AppColors.roseGold,
+    secondary: AppColors.champagneGold,
+    tertiary: AppColors.accentLight,
     surface: AppColors.cardBg,
     error: AppColors.error,
-    onPrimary: Colors.white,
-    onSecondary: Colors.white,
-    onTertiary: Colors.white,
-    onSurface: AppColors.textPrimary,
+    onPrimary: AppColors.deepBlack,
+    onSecondary: AppColors.deepBlack,
+    onTertiary: AppColors.deepBlack,
+    onSurface: AppColors.warmCream,
     onError: Colors.white,
   ),
   fontFamily: GoogleFonts.dmSans().fontFamily,
@@ -32,15 +32,15 @@ ThemeData appTheme = ThemeData(
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.summerOrange, width: 1.5),
+      borderSide: const BorderSide(color: AppColors.roseGold, width: 1.5),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.coral, width: 1.5),
+      borderSide: const BorderSide(color: AppColors.error, width: 1.5),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.coral, width: 2),
+      borderSide: const BorderSide(color: AppColors.error, width: 2),
     ),
     hintStyle: GoogleFonts.dmSans(
       color: AppColors.textDim,
@@ -52,9 +52,10 @@ ThemeData appTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.summerOrange,
-      foregroundColor: Colors.white,
+      backgroundColor: AppColors.roseGold,
+      foregroundColor: AppColors.deepBlack,
       elevation: 4,
+      shadowColor: AppColors.roseGold.withAlpha(77),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -64,35 +65,35 @@ ThemeData appTheme = ThemeData(
         letterSpacing: 0.3,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      minimumSize: const Size(64, 48), // 48dp minimum touch target
+      minimumSize: const Size(64, 48),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: AppColors.summerOrange,
+      foregroundColor: AppColors.roseGold,
       textStyle: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
-      minimumSize: const Size(48, 48), // 48dp minimum touch target
+      minimumSize: const Size(48, 48),
     ),
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: AppColors.textPrimary,
-      side: const BorderSide(color: AppColors.borderLight, width: 1),
+      foregroundColor: AppColors.warmCream,
+      side: const BorderSide(color: AppColors.borderDefault, width: 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       textStyle: GoogleFonts.dmSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
       ),
-      minimumSize: const Size(64, 48), // 48dp minimum touch target
+      minimumSize: const Size(64, 48),
     ),
   ),
   cardTheme: CardThemeData(
     color: AppColors.cardBg,
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.3),
+    elevation: 4,
+    shadowColor: Colors.black.withAlpha(77),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
       side: const BorderSide(color: AppColors.borderDefault, width: 0.5),
@@ -106,22 +107,22 @@ ThemeData appTheme = ThemeData(
   snackBarTheme: SnackBarThemeData(
     backgroundColor: AppColors.cardBg,
     contentTextStyle: GoogleFonts.dmSans(
-      color: AppColors.textPrimary,
+      color: AppColors.warmCream,
       fontSize: 14,
       fontWeight: FontWeight.w400,
     ),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     behavior: SnackBarBehavior.floating,
-    elevation: 4,
-    actionTextColor: AppColors.summerOrange,
+    elevation: 6,
+    actionTextColor: AppColors.roseGold,
   ),
   dialogTheme: DialogThemeData(
     backgroundColor: AppColors.cardBg,
-    elevation: 8,
-    shadowColor: Colors.black.withOpacity(0.5),
+    elevation: 12,
+    shadowColor: Colors.black.withAlpha(102),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     titleTextStyle: GoogleFonts.dmSans(
-      color: AppColors.textPrimary,
+      color: AppColors.warmCream,
       fontSize: 18,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.2,
@@ -134,7 +135,7 @@ ThemeData appTheme = ThemeData(
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: AppColors.cardBg,
-    selectedItemColor: AppColors.summerOrange,
+    selectedItemColor: AppColors.roseGold,
     unselectedItemColor: AppColors.textMuted,
     type: BottomNavigationBarType.fixed,
     elevation: 8,
@@ -142,21 +143,21 @@ ThemeData appTheme = ThemeData(
     unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Colors.transparent,
+    backgroundColor: AppColors.cardBg,
     elevation: 0,
-    foregroundColor: AppColors.textPrimary,
+    foregroundColor: AppColors.warmCream,
     titleTextStyle: TextStyle(
-      color: AppColors.textPrimary,
+      color: AppColors.warmCream,
       fontSize: 18,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.2,
     ),
-    iconTheme: IconThemeData(color: AppColors.textPrimary),
+    iconTheme: IconThemeData(color: AppColors.warmCream),
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
-    backgroundColor: AppColors.summerOrange,
-    foregroundColor: Colors.white,
-    elevation: 4,
+    backgroundColor: AppColors.roseGold,
+    foregroundColor: AppColors.deepBlack,
+    elevation: 6,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
     ),
@@ -164,17 +165,17 @@ ThemeData appTheme = ThemeData(
   checkboxTheme: CheckboxThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.summerOrange;
+        return AppColors.roseGold;
       }
       return Colors.transparent;
     }),
-    checkColor: WidgetStateProperty.all(Colors.white),
+    checkColor: WidgetStateProperty.all(AppColors.deepBlack),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
   ),
   radioTheme: RadioThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.summerOrange;
+        return AppColors.roseGold;
       }
       return AppColors.textDim;
     }),
@@ -182,39 +183,39 @@ ThemeData appTheme = ThemeData(
   switchTheme: SwitchThemeData(
     thumbColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.summerOrange;
+        return AppColors.roseGold;
       }
       return AppColors.textDim;
     }),
     trackColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.summerOrange.withOpacity(0.5);
+        return AppColors.roseGold.withAlpha(128);
       }
       return AppColors.borderDark;
     }),
   ),
   progressIndicatorTheme: const ProgressIndicatorThemeData(
-    color: AppColors.summerOrange,
+    color: AppColors.roseGold,
     linearTrackColor: AppColors.borderDark,
     circularTrackColor: AppColors.borderDark,
   ),
   sliderTheme: SliderThemeData(
-    activeTrackColor: AppColors.summerOrange,
+    activeTrackColor: AppColors.roseGold,
     inactiveTrackColor: AppColors.borderDark,
-    thumbColor: AppColors.summerOrange,
-    overlayColor: AppColors.summerOrange.withOpacity(0.2),
-    valueIndicatorColor: AppColors.summerOrange,
+    thumbColor: AppColors.roseGold,
+    overlayColor: AppColors.roseGold.withAlpha(51),
+    valueIndicatorColor: AppColors.roseGold,
     valueIndicatorTextStyle: GoogleFonts.dmSans(
-      color: Colors.white,
+      color: AppColors.deepBlack,
       fontSize: 12,
       fontWeight: FontWeight.w600,
     ),
   ),
   chipTheme: ChipThemeData(
-    backgroundColor: AppColors.cardBg,
-    selectedColor: AppColors.summerOrange,
+    backgroundColor: AppColors.inputBg,
+    selectedColor: AppColors.roseGold,
     labelStyle: GoogleFonts.dmSans(
-      color: AppColors.textPrimary,
+      color: AppColors.warmCream,
       fontSize: 13,
       fontWeight: FontWeight.w500,
     ),
@@ -225,7 +226,7 @@ ThemeData appTheme = ThemeData(
   listTileTheme: ListTileThemeData(
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     titleTextStyle: GoogleFonts.dmSans(
-      color: AppColors.textPrimary,
+      color: AppColors.warmCream,
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),

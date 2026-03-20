@@ -112,7 +112,7 @@ class _LimeButtonState extends State<LimeButton> with SingleTickerProviderStateM
               padding: padding,
               minimumSize: Size(widget.fullWidth ? double.infinity : 0, height),
               elevation: 4,
-              shadowColor: AppColors.summerOrange.withOpacity(0.4),
+              shadowColor: AppColors.warmCoral.withAlpha(102),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

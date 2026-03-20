@@ -79,24 +79,41 @@ class DatabaseService {
 
   // Plans
   static Future<List<Map<String, dynamic>>> getPlans(String userId) async {
-    final res = await _db.listDocuments(
-      databaseId: AppwriteConfig.databaseId,
-      collectionId: AppwriteConfig.colPlans,
-      queries: [Query.equal('userId', userId)],
-    );
-    return res.documents
-        .map((d) => <String, dynamic>{...d.data, '\$id': d.$id})
-        .toList();
+    AppLogger.i('DatabaseService.getPlans: userId=$userId');
+    try {
+      final res = await _db.listDocuments(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.colPlans,
+        queries: [Query.equal('userId', userId)],
+      );
+      AppLogger.i('DatabaseService.getPlans success: ${res.documents.length} docs');
+      return res.documents
+          .map((d) => <String, dynamic>{...d.data, '\$id': d.$id})
+          .toList();
+    } on AppwriteException catch (e) {
+      AppLogger.e('DatabaseService.getPlans AppwriteException: code=${e.code} message=${e.message}');
+      rethrow;
+    }
   }
 
   static Future<Map<String, dynamic>> createPlan(Map<String, dynamic> data) async {
-    final doc = await _db.createDocument(
-      databaseId: AppwriteConfig.databaseId,
-      collectionId: AppwriteConfig.colPlans,
-      documentId: ID.unique(),
-      data: data,
-    );
-    return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    AppLogger.i('DatabaseService.createPlan: data=$data');
+    try {
+      final doc = await _db.createDocument(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.colPlans,
+        documentId: ID.unique(),
+        data: data,
+      );
+      AppLogger.i('DatabaseService.createPlan success: docId=${doc.$id}');
+      return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    } on AppwriteException catch (e) {
+      AppLogger.e('DatabaseService.createPlan AppwriteException: code=${e.code} message=${e.message} type=${e.type}');
+      rethrow;
+    } catch (e, st) {
+      AppLogger.e('DatabaseService.createPlan unexpected error: $e\n$st');
+      rethrow;
+    }
   }
 
   // Legacy createPlan for backward compatibility with old schema
@@ -119,13 +136,23 @@ class DatabaseService {
   }
 
   static Future<Map<String, dynamic>> updatePlan(String planId, Map<String, dynamic> data) async {
-    final doc = await _db.updateDocument(
-      databaseId: AppwriteConfig.databaseId,
-      collectionId: AppwriteConfig.colPlans,
-      documentId: planId,
-      data: data,
-    );
-    return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    AppLogger.i('DatabaseService.updatePlan: planId=$planId data=$data');
+    try {
+      final doc = await _db.updateDocument(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.colPlans,
+        documentId: planId,
+        data: data,
+      );
+      AppLogger.i('DatabaseService.updatePlan success: docId=${doc.$id}');
+      return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    } on AppwriteException catch (e) {
+      AppLogger.e('DatabaseService.updatePlan AppwriteException: code=${e.code} message=${e.message} type=${e.type}');
+      rethrow;
+    } catch (e, st) {
+      AppLogger.e('DatabaseService.updatePlan unexpected error: $e\n$st');
+      rethrow;
+    }
   }
 
   // Logs
@@ -144,13 +171,23 @@ class DatabaseService {
   }
 
   static Future<Map<String, dynamic>> createLog(Map<String, dynamic> data) async {
-    final doc = await _db.createDocument(
-      databaseId: AppwriteConfig.databaseId,
-      collectionId: AppwriteConfig.colLogs,
-      documentId: ID.unique(),
-      data: data,
-    );
-    return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    AppLogger.i('DatabaseService.createLog: data=$data');
+    try {
+      final doc = await _db.createDocument(
+        databaseId: AppwriteConfig.databaseId,
+        collectionId: AppwriteConfig.colLogs,
+        documentId: ID.unique(),
+        data: data,
+      );
+      AppLogger.i('DatabaseService.createLog success: docId=${doc.$id}');
+      return <String, dynamic>{...doc.data, '\$id': doc.$id};
+    } on AppwriteException catch (e) {
+      AppLogger.e('DatabaseService.createLog AppwriteException: code=${e.code} message=${e.message}');
+      rethrow;
+    } catch (e, st) {
+      AppLogger.e('DatabaseService.createLog unexpected error: $e\n$st');
+      rethrow;
+    }
   }
 
   // Custom Exercises

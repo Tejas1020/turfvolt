@@ -18,21 +18,14 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final decoration = BoxDecoration(
-      color: AppColors.neumoBg,
+      color: AppColors.cardBg,
       borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(color: AppColors.neumoHighlight, width: 0.5),
+      border: Border.all(color: AppColors.borderDefault, width: 0.5),
       boxShadow: [
         BoxShadow(
-          color: AppColors.neumoHighlight.withOpacity(0.2),
-          offset: const Offset(-2, -2),
-          blurRadius: 4,
-          spreadRadius: 0,
-        ),
-        BoxShadow(
-          color: AppColors.neumoShadow.withOpacity(0.35),
-          offset: const Offset(2, 2),
-          blurRadius: 6,
-          spreadRadius: 0,
+          color: Colors.black.withAlpha(51),
+          offset: const Offset(0, 4),
+          blurRadius: 12,
         ),
       ],
     );

@@ -5,8 +5,12 @@ class AppLogger {
     debugPrint('[IronLog] $message');
   }
 
-  static void e(String message, [Object? error]) {
-    debugPrint('[IronLog][ERR] $message${error == null ? '' : ' — $error'}');
+  static void e(String message, [Object? error, Object? stackTrace]) {
+    debugPrint('[IronLog][ERR] $message${error == null ? '' : ' — $error'}${stackTrace == null ? '' : '\n$stackTrace'}');
+  }
+
+  static void d(String message) {
+    debugPrint('[IronLog][DBG] $message');
   }
 }
 

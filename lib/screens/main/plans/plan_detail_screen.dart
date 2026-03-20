@@ -30,8 +30,8 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   }
 
   void _refreshPlan() {
-    // Trigger a rebuild by notifying listeners
-    context.read<PlanProvider>().notifyListeners();
+    // Rebuild by reading the current plan state
+    setState(() {});
   }
 
   @override
@@ -188,33 +188,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                   ),
           ),
 
-          // Add Day Button
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.cardBg,
-              border: Border(
-                top: BorderSide(color: AppColors.borderDefault, width: 0.5),
-              ),
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton.icon(
-                onPressed: () => _showAddDayDialog(plan),
-                icon: Icon(Icons.add, color: AppColors.lime),
-                label: Text(
-                  'Add Workout Day',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, color: AppColors.lime),
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.lime,
-                  side: BorderSide(color: AppColors.lime.withOpacity(0.5)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -377,21 +350,10 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
                 spacing: 6,
                 runSpacing: 6,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                children: day.exercises.take(3).map((ex) {
-                  return SizedBox(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.inputBg,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        ex.exerciseName,
-                        style: GoogleFonts.dmSans(fontSize: 11, color: AppColors.textMuted),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                children: day.exercises.map((ex) {
+                  return _ExerciseChip(
+                    exercise: ex,
+                    onRemove: () => _removeExercise(plan, weekday, ex),
                   );
                 }).toList(),
               ),
@@ -827,6 +789,49 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     }
   }
 
+  Future<void> _removeExercise(PlanModel plan, Weekday weekday, DayExercise exercise) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Remove ${exercise.exerciseName}?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+        content: Text(
+          'This will remove the exercise from ${weekday.displayName}.',
+          style: GoogleFonts.dmSans(color: AppColors.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.coral,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text('Remove', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await context.read<PlanProvider>().removeExerciseFromDay(
+        planId: plan.id,
+        weekday: weekday,
+        exerciseId: exercise.exerciseId,
+      );
+      showToast(context, '${exercise.exerciseName} removed');
+    } catch (e) {
+      showToast(context, e.toString(), isError: true);
+    }
+  }
+
   Future<void> _showAddExerciseDialog(PlanModel plan, Weekday weekday) async {
     final exerciseProvider = context.read<ExerciseProvider>();
     final allExercises = exerciseProvider.exercises;
@@ -867,50 +872,6 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
     }
 
     showToast(context, 'Exercises added to ${weekday.displayName}');
-  }
-
-  Future<void> _showAddDayDialog(PlanModel plan) async {
-    final availableDays = Weekday.values.where((d) => !plan.workoutDays.any((wd) => wd.weekday == d)).toList();
-
-    if (availableDays.isEmpty) {
-      showToast(context, 'All days already added', isError: true);
-      return;
-    }
-
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (ctx) => _AddDayDialog(
-        availableDays: availableDays,
-        existingDays: plan.workoutDays,
-      ),
-    );
-
-    if (result == null) return;
-
-    final selectedDay = result['weekday'] as Weekday;
-    final copyFromDay = result['copyFrom'] as WorkoutDay?;
-
-    try {
-      if (copyFromDay != null && copyFromDay.exercises.isNotEmpty) {
-        // Use the new method to add day with exercises in one go
-        await context.read<PlanProvider>().addWorkoutDayWithExercises(
-          planId: plan.id,
-          weekday: selectedDay,
-          dayName: copyFromDay.name.isNotEmpty ? copyFromDay.name : '',
-          exercises: copyFromDay.exercises,
-        );
-        showToast(context, '${selectedDay.displayName} added with ${copyFromDay.exercises.length} exercises');
-      } else {
-        // Add empty day
-        await context.read<PlanProvider>().addWorkoutDay(
-          planId: plan.id,
-          weekday: selectedDay,
-        );
-        showToast(context, '${selectedDay.displayName} added');
-      }
-    } catch (e) {
-      showToast(context, e.toString(), isError: true);
-    }
   }
 
   Future<void> _confirmDelete(BuildContext context, PlanModel plan) async {
@@ -954,164 +915,51 @@ class _PlanDetailScreenState extends State<PlanDetailScreen> {
   }
 }
 
-/// Dialog to add a new workout day with option to copy exercises from another day
-class _AddDayDialog extends StatefulWidget {
-  final List<Weekday> availableDays;
-  final List<WorkoutDay> existingDays;
+/// Exercise chip with remove button
+class _ExerciseChip extends StatelessWidget {
+  final DayExercise exercise;
+  final VoidCallback onRemove;
 
-  const _AddDayDialog({
-    required this.availableDays,
-    required this.existingDays,
+  const _ExerciseChip({
+    required this.exercise,
+    required this.onRemove,
   });
 
   @override
-  State<_AddDayDialog> createState() => _AddDayDialogState();
-}
-
-class _AddDayDialogState extends State<_AddDayDialog> {
-  Weekday? _selectedDay;
-  WorkoutDay? _copyFromDay;
-
-  @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.cardBg,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('Add Workout Day', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-      content: Column(
+    return Container(
+      padding: const EdgeInsets.only(left: 8, right: 2, top: 4, bottom: 4),
+      decoration: BoxDecoration(
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Select Day',
-            style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted),
+            exercise.exerciseName,
+            style: GoogleFonts.dmSans(fontSize: 11, color: AppColors.textMuted),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
-          ...widget.availableDays.map((day) {
-            final selected = _selectedDay == day;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedDay = day),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: selected ? AppColors.lime.withOpacity(0.15) : AppColors.inputBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: selected ? AppColors.lime : AppColors.borderDefault,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                      color: selected ? AppColors.lime : AppColors.textMuted,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(day.icon, size: 20, color: selected ? AppColors.lime : AppColors.textMuted),
-                    const SizedBox(width: 8),
-                    Text(day.displayName, style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-                  ],
-                ),
+          const SizedBox(width: 2),
+          GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.coral.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(4),
               ),
-            );
-          }).toList(),
-          if (widget.existingDays.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text(
-              'Copy Exercises From (Optional)',
-              style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () => setState(() => _copyFromDay = null),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _copyFromDay == null ? AppColors.lime.withOpacity(0.15) : AppColors.inputBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: _copyFromDay == null ? AppColors.lime : AppColors.borderDefault,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _copyFromDay == null ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                      color: _copyFromDay == null ? AppColors.lime : AppColors.textMuted,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text('Start Fresh', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-                  ],
-                ),
+              child: Icon(
+                Icons.close,
+                size: 12,
+                color: AppColors.coral,
               ),
             ),
-            ...widget.existingDays.map((day) {
-              final selected = _copyFromDay == day;
-              return GestureDetector(
-                onTap: () => setState(() => _copyFromDay = day),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: selected ? AppColors.lime.withOpacity(0.15) : AppColors.inputBg,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: selected ? AppColors.lime : AppColors.borderDefault,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                        color: selected ? AppColors.lime : AppColors.textMuted,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(day.weekday.icon, size: 20, color: selected ? AppColors.lime : AppColors.textMuted),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(day.name.isNotEmpty ? day.name : day.weekday.displayName,
-                                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-                            Text(
-                              '${day.exercises.length} exercises',
-                              style: GoogleFonts.dmSans(fontSize: 11, color: AppColors.textMuted),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ],
+          ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
-        ),
-        ElevatedButton(
-          onPressed: _selectedDay == null ? null : () => Navigator.pop(context, {
-            'weekday': _selectedDay,
-            'copyFrom': _copyFromDay,
-          }),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.lime,
-            foregroundColor: AppColors.appBg,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text('Add Day', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-        ),
-      ],
     );
   }
 }

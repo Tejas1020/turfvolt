@@ -32,3 +32,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Rosnoc
+      fonts:
+        - asset: Assets/font/Rosnoc.otf

@@ -58,9 +58,12 @@ class _PlanCreateWorkoutScreenState extends State<PlanCreateWorkoutScreen> {
         final plan = context.read<PlanProvider>().getPlanById(widget.planId!);
         if (plan != null) {
           _nameCtrl.text = plan.name;
-          final day = plan.workoutDays.first;
-          _selectedDay = day.weekday;
-          _dayExercises[_selectedDay] = day.exercises;
+          // Load ALL days and their exercises from the plan
+          for (final day in plan.workoutDays) {
+            _dayExercises[day.weekday] = day.exercises;
+          }
+          // Default to first day's weekday
+          _selectedDay = plan.workoutDays.first.weekday;
         }
       });
     }
@@ -77,6 +80,120 @@ class _PlanCreateWorkoutScreenState extends State<PlanCreateWorkoutScreen> {
       _selectedDay = day;
       _dayExercises.putIfAbsent(day, () => []);
     });
+  }
+
+  void _repeatWorkoutToAnotherDay() {
+    final currentExercises = _dayExercises[_selectedDay];
+    if (currentExercises == null || currentExercises.isEmpty) {
+      showToast(context, 'Add exercises first to repeat', isError: true);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardBg,
+        title: Text(
+          'Repeat on Day',
+          style: AppTextStyles.headline.copyWith(fontSize: 18),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Copy "${_dayExercises[_selectedDay]!.length} exercises" to another day',
+              style: AppTextStyles.bodySecondary,
+            ),
+            const SizedBox(height: 16),
+            ...Weekday.values.map((day) {
+              final alreadyHasExercises = (_dayExercises[day] ?? []).isNotEmpty;
+              final isCurrentDay = day == _selectedDay;
+              return ListTile(
+                leading: Icon(
+                  day.icon,
+                  color: isCurrentDay
+                      ? AppColors.textMuted
+                      : alreadyHasExercises
+                          ? AppColors.summerOrange
+                          : AppColors.success,
+                ),
+                title: Text(
+                  day.displayName,
+                  style: AppTextStyles.bodySecondary.copyWith(
+                    color: isCurrentDay ? AppColors.textMuted : null,
+                  ),
+                ),
+                subtitle: Text(
+                  isCurrentDay
+                      ? 'Current day'
+                      : alreadyHasExercises
+                          ? '${_dayExercises[day]!.length} exercises (will replace)'
+                          : 'Empty',
+                  style: AppTextStyles.micro,
+                ),
+                enabled: !isCurrentDay,
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _copyExercisesToDay(day);
+                },
+                trailing: isCurrentDay
+                    ? null
+                    : alreadyHasExercises
+                        ? const Icon(Icons.warning_amber_rounded,
+                            color: AppColors.summerOrange, size: 20)
+                        : const Icon(Icons.add_circle_outline,
+                            color: AppColors.success, size: 20),
+              );
+            }),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: AppTextStyles.buttonPrimary.copyWith(
+                color: AppColors.textMuted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _copyExercisesToDay(Weekday targetDay) {
+    final sourceExercises = _dayExercises[_selectedDay];
+    if (sourceExercises == null) return;
+
+    setState(() {
+      // Deep copy exercises to target day (independent copies)
+      _dayExercises[targetDay] = sourceExercises.map((e) {
+        return DayExercise(
+          exerciseId: e.exerciseId,
+          exerciseName: e.exerciseName,
+          muscleGroup: e.muscleGroup,
+          sets: e.sets,
+          reps: e.reps,
+        );
+      }).toList();
+
+      // Also copy the set entries for workout tracking
+      for (final ex in sourceExercises) {
+        if (_exerciseSets.containsKey(ex.exerciseId)) {
+          _exerciseSets['${ex.exerciseId}_${targetDay.name}'] =
+              _exerciseSets[ex.exerciseId]!.map((s) {
+            return SetEntry(
+              weight: s.weight,
+              reps: s.reps,
+              done: false,
+            );
+          }).toList();
+        }
+      }
+    });
+
+    showToast(context, 'Repeated on ${targetDay.displayName}');
   }
 
   void _toggleExercise(ExerciseModel ex) {
@@ -168,26 +285,37 @@ class _PlanCreateWorkoutScreenState extends State<PlanCreateWorkoutScreen> {
     setState(() => _saving = true);
 
     try {
-      final days = [WorkoutDay(
-        weekday: _selectedDay,
-        name: '${_selectedDay.displayName} Workout',
-        exercises: exercises,
-      )];
+      final planProvider = context.read<PlanProvider>();
 
       if (widget.planId != null) {
-        // Update existing plan
-        await context.read<PlanProvider>().updatePlan(
+        // Update existing plan — update name AND the selected day's exercises
+        await planProvider.updatePlan(
           widget.planId!,
           name: _nameCtrl.text.trim(),
         );
+
+        // Sync the selected day's exercises to Appwrite
+        await planProvider.updateWorkoutDay(
+          planId: widget.planId!,
+          weekday: _selectedDay,
+          name: '${_selectedDay.displayName} Workout',
+          exercises: exercises,
+        );
+
         if (!mounted) return;
         showToast(context, 'Plan updated!');
       } else {
         // Create new plan
-        final plan = await context.read<PlanProvider>().createPlanWithDays(
+        final plan = await planProvider.createPlanWithDays(
           userId: user.$id,
           name: _nameCtrl.text.trim(),
-          days: days,
+          days: [
+            WorkoutDay(
+              weekday: _selectedDay,
+              name: '${_selectedDay.displayName} Workout',
+              exercises: exercises,
+            ),
+          ],
         );
         if (!mounted) return;
         showToast(context, 'Plan created!');
@@ -487,12 +615,40 @@ class _PlanCreateWorkoutScreenState extends State<PlanCreateWorkoutScreen> {
     final hasExercises = exercises.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: LimeButton(
-        label: hasExercises ? 'Start Workout' : 'Add exercises to start',
-        onPressed: hasExercises && !_saving ? _startWorkout : null,
-        icon: Icons.play_arrow_rounded,
-        fullWidth: true,
-        size: ButtonSize.large,
+      child: Column(
+        children: [
+          if (hasExercises) ...[
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _saving ? null : _repeatWorkoutToAnotherDay,
+                icon: const Icon(Icons.copy_rounded, size: 20),
+                label: Text(
+                  'Repeat Workout on Another Day',
+                  style: AppTextStyles.buttonPrimary.copyWith(
+                    color: AppColors.summerOrange,
+                    fontSize: 14,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: AppColors.summerOrange, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          LimeButton(
+            label: hasExercises ? 'Start Workout' : 'Add exercises to start',
+            onPressed: hasExercises && !_saving ? _startWorkout : null,
+            icon: Icons.play_arrow_rounded,
+            fullWidth: true,
+            size: ButtonSize.large,
+          ),
+        ],
       ),
     );
   }

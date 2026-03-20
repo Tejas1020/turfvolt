@@ -1,12 +1,28 @@
 {
   "mcpServers": {
-    "appwrite": {
+    "StitchMCP": {
       "command": "npx",
-      "args": ["-y", "appwrite-mcp-server"],
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://stitch.googleapis.com/mcp",
+        "--header",
+        "X-Goog-Api-Key: AQ.Ab8RN6Ix3hdWJeNdB8PAC_ySMFmFZVUJr3FqV9KpDt4sWUME9A"
+      ],
+      "env": {}
+    },
+    "appwrite-api": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-appwrite",
+        "--users",
+        "--databases",
+        "--storage"
+      ],
       "env": {
-        "APPWRITE_ENDPOINT": "https://sgp.cloud.appwrite.io/v1",
+        "APPWRITE_API_KEY": "standard_731aa9f8e19c5dbc32cc68d36d8109c112c86ee21258fceab145ed548ad25a9c8ab9e34037c601d1c10ef1b614086eed187135bb3d26fc105f2c7077e59b6afd56c27148de5d2c2356d7cb4804a054ef93808d1918c501b4b72dd87cd3b8be9e27b3b8d9ebea4941154c347d804a6f136ee4de634cad8d34373901e645831909",
         "APPWRITE_PROJECT_ID": "69b7aa29001c95b53929",
-        "APPWRITE_API_KEY": "standard_731aa9f8e19c5dbc32cc68d36d8109c112c86ee21258fceab145ed548ad25a9c8ab9e34037c601d1c10ef1b614086eed187135bb3d26fc105f2c7077e59b6afd56c27148de5d2c2356d7cb4804a054ef93808d1918c501b4b72dd87cd3b8be9e27b3b8d9ebea4941154c347d804a6f136ee4de634cad8d34373901e645831909"
+        "APPWRITE_ENDPOINT": "https://sgp.cloud.appwrite.io/v1"
       }
     }
   }

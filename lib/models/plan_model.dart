@@ -89,11 +89,9 @@ class PlanModel {
 
   Map<String, dynamic> toMap() => {
     'name': name,
-    'description': description,
     'userId': userId,
     'workoutDays': workoutDays.map((d) => d.toMap()).toList(),
     'createdAt': createdAt,
-    'isTemplate': isTemplate,
   };
 
   /// Convert to map for creating a new document (without updatedAt)
@@ -106,12 +104,11 @@ class PlanModel {
     'isTemplate': isTemplate,
   };
 
-  /// Convert to map for Appwrite update (only mutable fields, workoutDays as array)
+  /// Convert to map for Appwrite update
+  /// Only sends fields that are known to exist in the Appwrite schema
   Map<String, dynamic> toUpdateMap() => {
     'name': name,
-    'description': description,
-    'workoutDays': workoutDays.map((d) => d.toMap()).toList(),
-    'updatedAt': DateTime.now().toIso8601String(),
+    'workoutDays': jsonEncode(workoutDays.map((d) => d.toMap()).toList()),
   };
 
   /// Get total number of exercises across all days
