@@ -10,14 +10,15 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/plan_provider.dart';
-import '../../../widgets/animated_streak_counter.dart';
 import '../../../widgets/consistency_matrix.dart';
+import '../../../widgets/glass_card.dart';
+import '../../../widgets/gradient_text.dart';
 import '../../../widgets/lime_button.dart';
-import '../../../widgets/weekly_progress_bar.dart';
-import '../../../widgets/challenge_card.dart';
-import '../../../widgets/activity_feed_item.dart';
+import '../../../widgets/mesh_gradient_background.dart';
 import '../../../widgets/skeleton_loader.dart';
+import '../../../widgets/shimmer.dart';
 import '../../../widgets/todays_workout_card.dart';
+import '../../../widgets/weekly_progress_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,29 +27,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   bool _loaded = false;
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
-  }
 
   @override
   void didChangeDependencies() {
@@ -64,10 +44,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       context.read<LogProvider>().loadLogs(user.$id);
       context.read<ExerciseProvider>().loadCustomExercises(user.$id);
     }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fadeController.forward();
-    });
   }
 
   @override
@@ -81,85 +57,87 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final dayName = DateFormat('EEEE').format(today);
     final userName = auth.user?.name?.split(' ').first ?? 'Fitness Warrior';
 
-    // Get today's plans
     final todaysPlans = planP.plans.where((plan) {
       return plan.workoutDays.any((day) => day.weekday == todayWeekday);
     }).toList();
 
-    final displayPlans = todaysPlans.isNotEmpty ? todaysPlans : planP.plans;
-
-    return RefreshIndicator(
-      onRefresh: () async {
-        if (auth.user != null) {
-          await context.read<PlanProvider>().loadPlans(auth.user!.$id);
-          await context.read<LogProvider>().loadLogs(auth.user!.$id);
-        }
-      },
-      color: AppColors.summerOrange,
-      backgroundColor: AppColors.cardBg,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeroHeader(userName, dayName, todayWeekday),
-              _buildTodaysWorkout(displayPlans, todaysPlans.isNotEmpty, dayName),
-              _buildWeeklyProgress(logP),
-              _buildChallengesSection(),
-              _buildActivityFeed(),
-              _buildConsistencySection(logP),
-              _buildQuickActions(),
-              const SizedBox(height: 24),
-            ],
+    return MeshGradientBackground(
+      child: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            if (auth.user != null) {
+              await context.read<PlanProvider>().loadPlans(auth.user!.$id);
+              await context.read<LogProvider>().loadLogs(auth.user!.$id);
+            }
+          },
+          color: AppColors.vibrantCoral,
+          backgroundColor: AppColors.cardBg,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCompactHero(userName, dayName, logP.currentStreak),
+                _buildTodaysWorkout(todaysPlans, dayName),
+                _buildCompactStatsRow(logP),
+                _buildConsistencySection(logP),
+                _buildQuickActions(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeroHeader(String userName, String dayName, Weekday todayWeekday) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.cardBg.withOpacity(0.8),
-            AppColors.appBg,
-          ],
-        ),
-      ),
+  Widget _buildCompactHero(String userName, String dayName, int streak) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Hello, $userName!',
-                style: AppTextStyles.displayHero.copyWith(
-                  fontSize: 28,
-                  letterSpacing: 0.5,
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Hey, ',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 16,
+                      ),
+                    ),
+                    TextSpan(
+                      text: userName,
+                      style: AppTextStyles.gradientHero.copyWith(
+                        fontSize: 32,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
-                '$dayName • Ready to crush it?',
-                style: AppTextStyles.bodySecondary.copyWith(fontSize: 15),
+                '$dayName \u00b7 Let\'s crush it!',
+                style: AppTextStyles.bodySecondary.copyWith(
+                  fontSize: 14,
+                  color: AppColors.textMuted,
+                ),
               ),
             ],
           ),
-          StreakBadge(streak: context.watch<LogProvider>().currentStreak),
+          _StreakBadgeCompact(streak: streak),
         ],
       ),
     );
   }
 
-  Widget _buildTodaysWorkout(List<PlanModel> plans, bool isToday, String dayName) {
+  Widget _buildTodaysWorkout(List<PlanModel> plans, String dayName) {
     if (plans.isEmpty) {
       return _emptyWorkoutCard();
     }
@@ -168,14 +146,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       children: plans.take(1).map((plan) {
         return TodaysWorkoutCard(
           plan: plan,
-          isToday: isToday,
+          isToday: true,
           dayName: dayName,
         );
       }).toList(),
     );
   }
 
-  Widget _buildWeeklyProgress(LogProvider logP) {
+  Widget _buildCompactStatsRow(LogProvider logP) {
     final weeklyGoal = 5;
     final completedThisWeek = logP.logs
         .where((log) {
@@ -185,92 +163,128 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           return logDate.isAfter(startOfWeek);
         })
         .length;
-    final lastWeekWorkouts = 3; // Would be calculated from actual data
-
-    return WeeklyProgressBar(
-      workoutsCompleted: completedThisWeek,
-      weeklyGoal: weeklyGoal,
-      lastWeekWorkouts: lastWeekWorkouts,
-    );
-  }
-
-  Widget _buildChallengesSection() {
-    final now = DateTime.now();
-    final challenges = [
-      ChallengeCard(
-        title: '30-Day Strength',
-        description: 'Complete 30 workouts this month',
-        currentProgress: 12,
-        target: 30,
-        endDate: now.add(const Duration(days: 18)),
-        icon: Icons.fitness_center,
-        accentColor: AppColors.summerOrange,
-      ),
-      ChallengeCard(
-        title: 'Cardio Blitz',
-        description: '5 cardio sessions this week',
-        currentProgress: 2,
-        target: 5,
-        endDate: now.add(Duration(days: 4 - now.weekday)),
-        icon: Icons.favorite,
-        accentColor: AppColors.oceanBlue,
-      ),
-    ];
+    final progress = completedThisWeek / weeklyGoal;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Active Challenges', style: AppTextStyles.headline),
-              TextButton(
-                onPressed: () {},
-                child: const Text('View All'),
-              ),
-            ],
+          Expanded(
+            child: GlassCard(
+              margin: EdgeInsets.zero,
+              padding: const EdgeInsets.all(16),
+              child: logP.logs.isEmpty
+                  ? const ShimmerStatCard()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: AppColors.secondaryGradient,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.local_fire_department_rounded,
+                                color: AppColors.deepSpace,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'This Week',
+                              style: AppTextStyles.label.copyWith(
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$completedThisWeek/$weeklyGoal',
+                                    style: AppTextStyles.statValue.copyWith(
+                                      fontSize: 28,
+                                    ),
+                                  ),
+                                  Text(
+                                    'workouts done',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _MiniProgressRing(progress: progress),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
           ),
-          const SizedBox(height: 12),
-          ChallengeList(challenges: challenges),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActivityFeed() {
-    final activities = SyntheticActivityGenerator.generateFeed(count: 3);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Activity Feed', style: AppTextStyles.headline),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.summerOrange.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'LIVE',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.summerOrange,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: GlassCard(
+              margin: EdgeInsets.zero,
+              padding: const EdgeInsets.all(16),
+              child: logP.logs.isEmpty
+                  ? const ShimmerStatCard()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                gradient: AppColors.primaryGradient,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.local_fire_department_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Streak',
+                              style: AppTextStyles.label.copyWith(
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            GradientText.coralOrange(
+                              '${logP.currentStreak}',
+                              style: AppTextStyles.statValue.copyWith(
+                                fontSize: 32,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'days',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
           ),
-          const SizedBox(height: 12),
-          ActivityFeed(items: activities),
         ],
       ),
     );
@@ -278,19 +292,41 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildConsistencySection(LogProvider logP) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Consistency', style: AppTextStyles.headline),
-              Text('Last 16 weeks', style: AppTextStyles.caption),
+              GradientText.coralOrange(
+                'Consistency',
+                style: AppTextStyles.headline.copyWith(fontSize: 22),
+              ),
+              Text(
+                'Last 16 weeks',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textDim,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          ConsistencyMatrix(logs: logP.logs),
+          GlassCard(
+            margin: EdgeInsets.zero,
+            padding: const EdgeInsets.all(16),
+            child: logP.logs.isEmpty
+                ? Shimmer(
+                    child: Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  )
+                : ConsistencyMatrix(logs: logP.logs),
+          ),
         ],
       ),
     );
@@ -298,27 +334,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildQuickActions() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Row(
         children: [
           Expanded(
             child: _QuickCard(
-              icon: Icons.auto_stories_outlined,
-              iconColor: AppColors.oceanBlue,
-              iconBg: AppColors.oceanBlue.withOpacity(0.15),
+              icon: Icons.auto_stories_rounded,
+              gradient: AppColors.secondaryGradient,
               title: 'Browse Library',
-              subtitle: 'All exercises',
+              subtitle: 'Explore exercises',
               onTap: () => context.go('/library'),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: _QuickCard(
-              icon: Icons.insights_outlined,
-              iconColor: AppColors.success,
-              iconBg: AppColors.success.withOpacity(0.15),
+              icon: Icons.insights_rounded,
+              gradient: AppColors.accentGradient,
               title: 'View Reports',
-              subtitle: 'Your progress',
+              subtitle: 'Track progress',
               onTap: () => context.go('/reports'),
             ),
           ),
@@ -328,41 +362,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _emptyWorkoutCard() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.cardBg,
-            AppColors.cardBg.withOpacity(0.9),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: GradientBorderCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.add_rounded,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GradientText.coralOrange(
+              'Plan Your Day',
+              style: AppTextStyles.headline,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No workout scheduled for today.\nCreate a plan to get started!',
+              style: AppTextStyles.bodySecondary,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: LimeButton(
+                label: 'Create Workout',
+                onPressed: () => context.go('/plans/create'),
+                icon: Icons.add,
+                fullWidth: true,
+              ),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderDefault),
       ),
-      child: Column(
+    );
+  }
+}
+
+class _StreakBadgeCompact extends StatelessWidget {
+  final int streak;
+
+  const _StreakBadgeCompact({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.vibrantCoral.withAlpha(77),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SkeletonShapes.avatar(size: 60),
-          const SizedBox(height: 16),
+          Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 20),
+          const SizedBox(width: 6),
           Text(
-            'No workout scheduled',
-            style: AppTextStyles.headline,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Create a plan or browse exercises to get started',
-            style: AppTextStyles.bodySecondary,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: LimeButton(
-              label: 'Create & Start Workout',
-              onPressed: () => context.go('/plans/create'),
-              icon: Icons.add,
-              fullWidth: true,
+            '$streak',
+            style: AppTextStyles.buttonPrimary.copyWith(
+              fontSize: 18,
+              color: Colors.white,
             ),
           ),
         ],
@@ -371,19 +447,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
-// Quick action card
+class _MiniProgressRing extends StatelessWidget {
+  final double progress;
+
+  const _MiniProgressRing({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Stack(
+        children: [
+          SizedBox.expand(
+            child: CircularProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              strokeWidth: 5,
+              backgroundColor: AppColors.border,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                progress >= 1.0 ? AppColors.success : AppColors.vibrantCoral,
+              ),
+            ),
+          ),
+          Center(
+            child: Text(
+              '${(progress * 100).toInt()}%',
+              style: AppTextStyles.micro.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _QuickCard extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final Color iconBg;
+  final Gradient gradient;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
   const _QuickCard({
     required this.icon,
-    required this.iconColor,
-    required this.iconBg,
+    required this.gradient,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -396,30 +506,54 @@ class _QuickCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: iconColor.withOpacity(0.2)),
+          color: AppColors.glassFill,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.glassBorder),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(38),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(12),
+                gradient: gradient,
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, color: iconColor, size: 22),
+              child: Icon(
+                icon,
+                color: AppColors.deepSpace,
+                size: 24,
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: AppTextStyles.cardTitle.copyWith(fontSize: 13),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: AppTextStyles.micro,
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: AppColors.textDim,
+              size: 14,
             ),
           ],
         ),

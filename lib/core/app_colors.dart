@@ -1,124 +1,141 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // ── PREMIUM LUXURY PALETTE ─────────────────────────────────────────────────────
-  // Deep charcoal + rose gold — rich, aspirational, premium fitness
+  // ── TRENDING DRIBBBLE PALETTE ─────────────────────────────────────────────────
+  // Vibrant coral + deep purple — energetic, premium fitness aesthetic
 
   // ── CORE PALETTE ────────────────────────────────────────────────────────────────
-  // Rich charcoal — warm, deep, luxurious base (not pure black)
-  static const Color richCharcoal = Color(0xFF1A1A1E);
-  // Deep warm black — for elevated surfaces
-  static const Color deepBlack    = Color(0xFF111114);
-  // Rose gold — premium, aspirational, gender-neutral luxury
-  static const Color roseGold     = Color(0xFFE8A87C);
-  // Champagne gold — warm metallic highlight
-  static const Color champagneGold= Color(0xFFD4AF37);
-  // Warm cream — easy on eyes, luxurious
-  static const Color warmCream   = Color(0xFFF5F0E8);
-  // Soft ivory — muted cream for subtitles
-  static const Color softIvory    = Color(0xFFB8B0A4);
+  // Deep space — rich dark base
+  static const Color deepSpace = Color(0xFF0D0D1A);
+  static const Color midnightPurple = Color(0xFF1A1A2E);
+  static const Color richNavy = Color(0xFF16213E);
 
-  // ── PRIMARY - Rose Gold ─────────────────────────────────────────────────────────
-  // Warm, luxurious. Use for primary CTAs, active states
-  static const Color primary       = roseGold;
-  static const Color primaryDark    = Color(0xFFD4956A);
-  static const Color primaryLight  = Color(0xFFF0BB93);
+  // Vibrant coral — primary, energetic
+  static const Color vibrantCoral = Color(0xFFFF6B6B);
+  static const Color coralLight = Color(0xFFFF8E8E);
+  static const Color coralDark = Color(0xFFE55555);
 
-  // ── SECONDARY - Champagne Gold ─────────────────────────────────────────────────
-  // Warm metallic. Use for accents, highlights, premium elements
-  static const Color secondary     = champagneGold;
-  static const Color secondaryDark = Color(0xFFC49F2F);
-  static const Color secondaryLight= Color(0xFFE8CC72);
+  // Electric orange — accent, high energy
+  static const Color electricOrange = Color(0xFFFF9F43);
+  static const Color orangeLight = Color(0xFFFFB76B);
+  static const Color orangeDark = Color(0xFFE68A35);
 
-  // ── ACCENT - Rose Gold Light ──────────────────────────────────────────────────
-  // Gentle luxury. Use for badges, soft accents
-  static const Color accent        = Color(0xFFF0CBB5);
-  static const Color accentDark    = Color(0xFFD4A07A);
-  static const Color accentLight   = Color(0xFFF7DDD0);
+  // Warm lime — fresh, youthful
+  static const Color freshLime = Color(0xFFA8E6CF);
+  static const Color limeLight = Color(0xFFC8F0DF);
+  static const Color limeDark = Color(0xFF7DD3B0);
 
-  // ── HIGHLIGHT - Champagne Gold ────────────────────────────────────────────────
-  // Premium depth. Use for emphasis, luxury accents
-  static const Color highlight     = champagneGold;
-  static const Color highlightDark = Color(0xFFB8962B);
-  static const Color highlightLight= Color(0xFFE8D080);
+  // Soft lavender — secondary, calming contrast
+  static const Color softLavender = Color(0xFFDDA0DD);
+  static const Color lavenderLight = Color(0xFFEEC4E8);
+  static const Color lavenderDark = Color(0xFFCD8ACD);
 
-  // ── DEEP ───────────────────────────────────────────────────────────────────────
-  static const Color deep          = richCharcoal;
+  // Warm cream — text on dark
+  static const Color warmCream = Color(0xFFF8F4E8);
+  static const Color softIvory = Color(0xFFD4C8B8);
+  static const Color mutedSage = Color(0xFF9CAF88);
+
+  // ── PRIMARY - Vibrant Coral ─────────────────────────────────────────────────────────
+  static const Color primary = vibrantCoral;
+  static const Color primaryDark = coralDark;
+  static const Color primaryLight = coralLight;
+
+  // ── SECONDARY - Electric Orange ─────────────────────────────────────────────────────
+  static const Color secondary = electricOrange;
+  static const Color secondaryDark = orangeDark;
+  static const Color secondaryLight = orangeLight;
+
+  // ── ACCENT - Fresh Lime ─────────────────────────────────────────────────────────────
+  static const Color accent = freshLime;
+  static const Color accentDark = limeDark;
+  static const Color accentLight = limeLight;
+
+  // ── HIGHLIGHT ───────────────────────────────────────────────────────────────────────
+  static const Color highlight = electricOrange;
+  static const Color highlightDark = orangeDark;
+  static const Color highlightLight = orangeLight;
 
   // ── BACKGROUNDS ───────────────────────────────────────────────────────────────
-  // Deep warm black — rich, luxurious dark base
-  static const Color appBg         = Color(0xFF111114);
-  // Rich charcoal — card surfaces on dark
-  static const Color cardBg        = Color(0xFF1E1E24);
-  // Slightly lighter charcoal — input fields
-  static const Color inputBg       = Color(0xFF28282E);
+  static const Color appBg = deepSpace;
+  static const Color cardBg = Color(0xFF1A1A2E);
+  static const Color cardBgGlass = Color(0x26FFFFFF);
+  static const Color inputBg = Color(0xFF252540);
 
-  // ── SEMANTIC COLORS ────────────────────────────────────────────────────────────
-  static const Color error         = Color(0xFFE57373);
-  static const Color warning       = roseGold;
-  static const Color success       = Color(0xFF4CAF50);
-  static const Color info          = champagneGold;
-  static const Color coral         = Color(0xFFE8A87C);
+  // ── SEMANTIC COLORS ───────────────────────────────────────────────────────────
+  static const Color error = Color(0xFFFF6B6B);
+  static const Color warning = electricOrange;
+  static const Color success = Color(0xFFA8E6CF);
+  static const Color info = Color(0xFF7EC8E3);
+  static const Color coral = vibrantCoral;
 
-  // ── NEUTRALS ───────────────────────────────────────────────────────────────────
-  // Warm cream for primary text on dark backgrounds
-  static const Color textPrimary   = warmCream;
-  // Soft ivory for secondary text
-  static const Color textMuted     = Color(0xFFB8B0A4);
-  // Dimmer ivory for tertiary text
-  static const Color textDim       = Color(0xFF7A7068);
+  // ── TEXT COLORS ───────────────────────────────────────────────────────────────
+  static const Color textPrimary = warmCream;
+  static const Color textSecondary = softIvory;
+  static const Color textMuted = Color(0xFF8A8A9A);
+  static const Color textDim = Color(0xFF5A5A6A);
 
-  // Warm dark borders
-  static const Color border        = Color(0xFF3A3A42);
-  static const Color borderLight   = Color(0xFF4A4A54);
-  static const Color borderDark    = Color(0xFF2A2A32);
+  // ── SHIMMER COLORS ───────────────────────────────────────────────────────────
+  static const Color shimmerBase = Color(0xFF2A2A45);
+  static const Color shimmerHighlight = Color(0xFF3A3A55);
+
+  // ── BORDERS ─────────────────────────────────────────────────────────────────
+  static const Color border = Color(0xFF2A2A45);
+  static const Color borderLight = Color(0xFF3A3A55);
+  static const Color borderDark = Color(0xFF1A1A30);
   static const Color borderDefault = border;
 
-  static const Color dimText       = textMuted;
+  static const Color dimText = textMuted;
 
-  // ── GRADIENT COLORS ───────────────────────────────────────────────────────────
-  static const Color streakBgStart = Color(0xFF1E1E24);
-  static const Color streakBgEnd  = Color(0xFF111114);
-  static const Color streakSubtitle= Color(0xFFB8B0A4);
+  // ── GRADIENT COLORS ─────────────────────────────────────────────────────────
+  static const Color streakBgStart = Color(0xFF1A1A2E);
+  static const Color streakBgEnd = Color(0xFF0D0D1A);
+  static const Color streakSubtitle = softLavender;
 
-  // ── NEUMORPHISM ────────────────────────────────────────────────────────────────
-  // On dark bg, highlight is lighter, shadow is darker
-  static const Color neumoHighlight = Color(0xFF2E2E36);
-  static const Color neumoShadow    = Color(0xFF0A0A0E);
-  static const Color neumoBg        = cardBg;
+  // ── NEUMORPHISM ─────────────────────────────────────────────────────────────
+  static const Color neumoHighlight = Color(0xFF2A2A40);
+  static const Color neumoShadow = Color(0xFF080810);
+  static const Color neumoBg = cardBg;
 
-  // ── GLASS ──────────────────────────────────────────────────────────────────────
-  static const Color glassFill     = Color(0x1AFFFFFF);
-  static const Color glassBorder   = Color(0x33FFFFFF);
+  // ── GLASS ─────────────────────────────────────────────────────────────────────
+  static const Color glassFill = Color(0x1AFFFFFF);
+  static const Color glassBorder = Color(0x33FFFFFF);
+  static const Color glassHighlight = Color(0x0DFFFFFF);
 
   // ── CONSISTENCY MATRIX ─────────────────────────────────────────────────────────
-  static const Color matrixEmpty   = Color(0xFF3A3A42);
-  static const Color matrixLow     = Color(0xFF6BCFC4);
-  static const Color matrixMid     = Color(0xFFD4AF37);
-  static const Color matrixHeavy   = roseGold;
+  static const Color matrixEmpty = Color(0xFF2A2A45);
+  static const Color matrixLow = freshLime;
+  static const Color matrixMid = electricOrange;
+  static const Color matrixHeavy = vibrantCoral;
 
-  // ── COMPONENT COLORS ──────────────────────────────────────────────────────────
-  static const Color customBadgeBg = Color(0xFF28282E);
-  static const Color exerciseDoneBorder = Color(0xFF4CAF50);
-  static const Color chartRestBar  = Color(0xFF3A3A42);
+  // ── COMPONENT COLORS ─────────────────────────────────────────────────────────
+  static const Color customBadgeBg = Color(0xFF252540);
+  static const Color exerciseDoneBorder = Color(0xFFA8E6CF);
+  static const Color chartRestBar = Color(0xFF3A3A55);
 
-  // ── MUSCLE GROUP COLORS ────────────────────────────────────────────────────────
-  // Rose gold family for upper body, champagne gold for lower, ivory for core
+  // ── MESH GRADIENT ORB COLORS ─────────────────────────────────────────────────
+  // Vibrant orbs for mesh gradient background
+  static const Color orbCoral = Color(0x40FF6B6B);
+  static const Color orbPurple = Color(0x408836FF);
+  static const Color orbOrange = Color(0x40FF9F43);
+  static const Color orbLime = Color(0x40A8E6CF);
+  static const Color orbLavender = Color(0x40DDA0DD);
+
+  // ── MUSCLE GROUP COLORS ───────────────────────────────────────────────────────
   static const Map<String, List<Color>> muscleColors = {
-    'Upper Chest':  [Color(0xFF28282E), roseGold],
-    'Lower Chest':  [Color(0xFF28282E), Color(0xFFD4956A)],
-    'Chest':        [Color(0xFF28282E), roseGold],
-    'Back':         [Color(0xFF28282E), champagneGold],
-    'Shoulders':    [Color(0xFF28282E), warmCream],
-    'Biceps':       [Color(0xFF28282E), Color(0xFFE8A87C)],
-    'Triceps':      [Color(0xFF28282E), Color(0xFFD4956A)],
-    'Forearms':     [Color(0xFF28282E), warmCream],
-    'Quads':        [Color(0xFF28282E), champagneGold],
-    'Hamstrings':   [Color(0xFF28282E), Color(0xFFC49F2F)],
-    'Glutes':       [Color(0xFF28282E), roseGold],
-    'Calves':       [Color(0xFF28282E), champagneGold],
-    'Core':         [Color(0xFF28282E), warmCream],
-    'Full Body':    [Color(0xFF28282E), roseGold],
+    'Upper Chest':  [Color(0xFF252540), vibrantCoral],
+    'Lower Chest':  [Color(0xFF252540), Color(0xFFE55555)],
+    'Chest':        [Color(0xFF252540), vibrantCoral],
+    'Back':         [Color(0xFF252540), electricOrange],
+    'Shoulders':    [Color(0xFF252540), freshLime],
+    'Biceps':       [Color(0xFF252540), Color(0xFFFF8E8E)],
+    'Triceps':      [Color(0xFF252540), Color(0xFFE55555)],
+    'Forearms':     [Color(0xFF252540), softLavender],
+    'Quads':        [Color(0xFF252540), electricOrange],
+    'Hamstrings':   [Color(0xFF252540), Color(0xFFFFB76B)],
+    'Glutes':       [Color(0xFF252540), vibrantCoral],
+    'Calves':       [Color(0xFF252540), freshLime],
+    'Core':         [Color(0xFF252540), softLavender],
+    'Full Body':    [Color(0xFF252540), vibrantCoral],
   };
 
   static Color muscleBg(String muscle) =>
@@ -127,69 +144,97 @@ class AppColors {
       muscleColors[muscle]?[1] ?? textMuted;
 
   // ── GRADIENTS ─────────────────────────────────────────────────────────────────
+
+  // Primary CTA gradient — vibrant coral to orange
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [vibrantCoral, electricOrange],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Secondary gradient — lime fresh
+  static const LinearGradient secondaryGradient = LinearGradient(
+    colors: [freshLime, Color(0xFF7DD3B0)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Accent gradient — lavender soft
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [softLavender, lavenderLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Streak gradient — coral glow
   static const LinearGradient streakGradient = LinearGradient(
     colors: [streakBgStart, streakBgEnd],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Rose gold to warm champagne gradient — premium CTA look
+  // Avatar gradient — coral to orange
   static const LinearGradient avatarGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [roseGold, champagneGold],
+    colors: [vibrantCoral, electricOrange],
   );
 
+  // Card gradient — subtle dark
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [cardBg, Color(0xFF26262C)],
+    colors: [cardBg, Color(0xFF1E1E32)],
   );
 
+  // Matrix gradient — lime to coral intensity
   static const LinearGradient matrixGradient = LinearGradient(
     colors: [matrixEmpty, matrixLow, matrixMid, matrixHeavy],
   );
 
-  // Primary CTA gradient — rose gold shimmer
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [roseGold, Color(0xFFF0BB93)],
+  // Hero text gradient — coral to orange
+  static const LinearGradient heroTextGradient = LinearGradient(
+    colors: [vibrantCoral, electricOrange],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
   );
 
-  static const LinearGradient secondaryGradient = LinearGradient(
-    colors: [champagneGold, secondaryLight],
-  );
+  // Mesh gradient orbs — for background atmosphere
+  static const List<Color> meshOrbs = [
+    orbCoral,
+    orbPurple,
+    orbOrange,
+    orbLime,
+  ];
 
-  static const LinearGradient accentGradient = LinearGradient(
-    colors: [accentLight, accent],
-  );
-
-  // ── LEGACY ALIASES ────────────────────────────────────────────────────────────
-  static const Color summerOrange  = roseGold;
-  static const Color lime          = roseGold;
-  static const Color limeDark      = primaryDark;
-  static const Color limeDarkAccent= primaryDark;
-  static const Color limeMid       = champagneGold;
-  static const Color limeDim       = accentLight;
-  static const Color oceanBlue     = champagneGold;
-  static const Color electricBlue  = champagneGold;
-  static const Color skyBlue       = accent;
-  static const Color cyan          = secondaryLight;
-  static const Color mint          = Color(0xFF4CAF50);
-  static const Color violet        = Color(0xFFCF9E8B);
-  static const Color navyDeep      = richCharcoal;
-  static const Color sunshineYellow= champagneGold;
-  static const Color whiteText     = warmCream;
-  static const Color pine          = textMuted;
-  static const Color appBgDark     = Color(0xFF111114);
-  // Old palette redirects
-  static const Color indigoInk     = richCharcoal;
-  static const Color cornflowerBlue= champagneGold;
-  static const Color periwinkle    = accentLight;
-  static const Color platinum      = Color(0xFF1E1E24);
-  static const Color princetonOrange= roseGold;
-  static const Color warmCoral     = roseGold;
-  static const Color freshTeal     = champagneGold;
-  static const Color softTeal      = accent;
-  static const Color darkWarmGray  = warmCream;
-  static const Color darkCharcoal  = richCharcoal;
+  // ── LEGACY ALIASES ───────────────────────────────────────────────────────────
+  static const Color summerOrange = electricOrange;
+  static const Color lime = freshLime;
+  static const Color deepBlack = deepSpace;
+  static const Color limeDarkAccent = limeDark;
+  static const Color limeMid = Color(0xFF8FDDB8);
+  static const Color limeDim = limeLight;
+  static const Color oceanBlue = Color(0xFF7EC8E3);
+  static const Color electricBlue = Color(0xFF8B5CF6);
+  static const Color skyBlue = lavenderLight;
+  static const Color cyan = Color(0xFF7EC8E3);
+  static const Color mint = freshLime;
+  static const Color violet = softLavender;
+  static const Color navyDeep = midnightPurple;
+  static const Color sunshineYellow = electricOrange;
+  static const Color whiteText = warmCream;
+  static const Color pine = mutedSage;
+  static const Color appBgDark = deepSpace;
+  static const Color indigoInk = midnightPurple;
+  static const Color cornflowerBlue = Color(0xFF7EC8E3);
+  static const Color periwinkle = lavenderLight;
+  static const Color platinum = cardBg;
+  static const Color princetonOrange = vibrantCoral;
+  static const Color warmCoral = vibrantCoral;
+  static const Color freshTeal = freshLime;
+  static const Color softTeal = Color(0xFF7EC8E3);
+  static const Color darkWarmGray = warmCream;
+  static const Color darkCharcoal = deepSpace;
+  static const Color roseGold = vibrantCoral;
+  static const Color champagneGold = electricOrange;
 }

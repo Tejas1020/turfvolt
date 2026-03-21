@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
 import '../../models/plan_model.dart';
 
-/// Today's Workout Card - The centerpiece of the home screen
-/// Prominent, elevated design with immediate CTA
+/// Today's Workout Card - Premium Dribbble-inspired design
+/// Vibrant gradient, glass effect, prominent CTA
 class TodaysWorkoutCard extends StatelessWidget {
   final PlanModel plan;
   final bool isToday;
@@ -27,80 +26,111 @@ class TodaysWorkoutCard extends StatelessWidget {
     );
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.cardBg,
-            AppColors.cardBg.withOpacity(0.9),
-          ],
+          colors: isToday
+              ? [
+                  AppColors.cardBg,
+                  const Color(0xFF1E1A2E),
+                ]
+              : [
+                  AppColors.cardBg,
+                  const Color(0xFF181825),
+                ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isToday ? AppColors.summerOrange.withOpacity(0.5) : AppColors.borderDefault,
-          width: isToday ? 2 : 1,
+          color: isToday
+              ? AppColors.glassBorder
+              : AppColors.borderDefault,
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
             color: isToday
-                ? AppColors.summerOrange.withOpacity(0.2)
-                : Colors.black.withOpacity(0.2),
-            blurRadius: isToday ? 20 : 12,
+                ? AppColors.vibrantCoral.withAlpha(51)
+                : Colors.black.withAlpha(51),
+            blurRadius: isToday ? 32 : 20,
             offset: const Offset(0, 8),
-            spreadRadius: isToday ? 0 : 0,
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with gradient border top
+          // Glass header with gradient accent
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: isToday
                     ? [
-                        AppColors.summerOrange.withOpacity(0.15),
-                        AppColors.sunshineYellow.withOpacity(0.08),
+                        AppColors.vibrantCoral.withAlpha(26),
+                        AppColors.electricOrange.withAlpha(13),
                       ]
                     : [
-                        AppColors.oceanBlue.withOpacity(0.1),
-                        AppColors.secondary.withOpacity(0.05),
+                        AppColors.glassFill,
+                        AppColors.glassFill.withAlpha(128),
                       ],
               ),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
               ),
             ),
             child: Row(
               children: [
+                // Animated gradient icon container
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isToday
-                          ? [AppColors.summerOrange, AppColors.sunshineYellow]
-                          : [AppColors.oceanBlue, AppColors.skyBlue],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: isToday
+                        ? AppColors.primaryGradient
+                        : const LinearGradient(
+                            colors: [AppColors.softLavender, AppColors.lavenderLight],
+                          ),
+                    borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: (isToday ? AppColors.summerOrange : AppColors.oceanBlue)
-                            .withOpacity(0.4),
-                        blurRadius: 12,
+                        color: (isToday ? AppColors.vibrantCoral : AppColors.softLavender)
+                            .withAlpha(102),
+                        blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  child: Icon(
-                    Icons.fitness_center_rounded,
-                    color: Colors.white,
-                    size: 28,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.fitness_center_rounded,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      if (isToday)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: AppColors.success,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.cardBg,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -112,49 +142,50 @@ class TodaysWorkoutCard extends StatelessWidget {
                         children: [
                           if (isToday) ...[
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [AppColors.summerOrange, AppColors.sunshineYellow],
-                                ),
-                                borderRadius: BorderRadius.circular(6),
+                                gradient: AppColors.primaryGradient,
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.vibrantCoral.withAlpha(77),
+                                    blurRadius: 8,
+                                  ),
+                                ],
                               ),
                               child: Text(
                                 'TODAY',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w900,
+                                style: AppTextStyles.micro.copyWith(
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
-                                  letterSpacing: 0.8,
+                                  letterSpacing: 1,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
                           ],
-                          Text(
-                            plan.name,
-                            style: AppTextStyles.headline.copyWith(
-                              fontSize: 20,
-                              color: AppColors.textPrimary,
+                          Expanded(
+                            child: Text(
+                              plan.name,
+                              style: AppTextStyles.gradientHero.copyWith(
+                                fontSize: 22,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
-                          Icon(Icons.fitness_center, size: 14, color: AppColors.textMuted),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${workoutDay.exercises.length} exercises',
-                            style: AppTextStyles.caption,
+                          _InfoChip(
+                            icon: Icons.fitness_center_rounded,
+                            label: '${workoutDay.exercises.length} exercises',
                           ),
                           const SizedBox(width: 12),
-                          Icon(Icons.timer_outlined, size: 14, color: AppColors.textMuted),
-                          const SizedBox(width: 4),
-                          Text(
-                            '~${workoutDay.estimatedDuration} min',
-                            style: AppTextStyles.caption,
+                          _InfoChip(
+                            icon: Icons.timer_rounded,
+                            label: '~${workoutDay.estimatedDuration} min',
                           ),
                         ],
                       ),
@@ -171,13 +202,13 @@ class TodaysWorkoutCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Exercises',
+                  'EXERCISES',
                   style: AppTextStyles.label.copyWith(
-                    color: AppColors.textMuted,
-                    letterSpacing: 0.5,
+                    color: AppColors.textDim,
+                    letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -185,10 +216,10 @@ class TodaysWorkoutCard extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.cardBg,
+                        color: AppColors.muscleBg(ex.muscleGroup),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.muscleText(ex.muscleGroup).withOpacity(0.4),
+                          color: AppColors.muscleText(ex.muscleGroup).withAlpha(77),
                           width: 1,
                         ),
                       ),
@@ -203,14 +234,14 @@ class TodaysWorkoutCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           Text(
-                            ex.exerciseName.length > 18
-                                ? '${ex.exerciseName.substring(0, 18)}...'
+                            ex.exerciseName.length > 20
+                                ? '${ex.exerciseName.substring(0, 20)}...'
                                 : ex.exerciseName,
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.muscleText(ex.muscleGroup),
                             ),
                           ),
@@ -222,45 +253,84 @@ class TodaysWorkoutCard extends StatelessWidget {
               ],
             ),
           ),
-          // CTA Button
+          // CTA Button with gradient
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: SizedBox(
+            child: Container(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => context.go('/log'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isToday ? AppColors.summerOrange : AppColors.oceanBlue,
-                  foregroundColor: Colors.white,
-                  elevation: 4,
-                  shadowColor: (isToday ? AppColors.summerOrange : AppColors.oceanBlue)
-                      .withOpacity(0.4),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              decoration: BoxDecoration(
+                gradient: isToday ? AppColors.primaryGradient : null,
+                color: isToday ? null : AppColors.cardBg,
+                borderRadius: BorderRadius.circular(16),
+                border: isToday
+                    ? null
+                    : Border.all(color: AppColors.border),
+                boxShadow: isToday
+                    ? [
+                        BoxShadow(
+                          color: AppColors.vibrantCoral.withAlpha(102),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => context.go('/log'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          isToday ? Icons.play_arrow_rounded : Icons.schedule_rounded,
+                          size: 24,
+                          color: isToday ? Colors.white : AppColors.textPrimary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isToday ? 'Start Workout' : 'Schedule for $dayName',
+                          style: AppTextStyles.buttonPrimary.copyWith(
+                            color: isToday ? Colors.white : AppColors.textPrimary,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  textStyle: AppTextStyles.buttonPrimary,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      isToday ? Icons.play_arrow_rounded : Icons.schedule,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isToday ? 'Start Workout' : 'Schedule for $dayName',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ],
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _InfoChip({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.textMuted),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.textMuted,
+          ),
+        ),
+      ],
     );
   }
 }

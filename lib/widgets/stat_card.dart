@@ -1,51 +1,73 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/app_colors.dart';
-import '../core/app_text_styles.dart';
 
+/// Premium stat card with gradient accent for Dribbble aesthetic
 class StatCard extends StatelessWidget {
   final String value;
   final String label;
-  final IconData? icon;
+  final IconData icon;
+  final Gradient? gradient;
 
   const StatCard({
     super.key,
     required this.value,
     required this.label,
-    this.icon,
+    required this.icon,
+    this.gradient,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDefault.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.borderDefault),
         boxShadow: [
           BoxShadow(
-            color: AppColors.lime.withOpacity(0.05),
+            color: Colors.black.withAlpha(38),
+            blurRadius: 16,
             offset: const Offset(0, 4),
-            blurRadius: 12,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            offset: const Offset(0, 4),
-            blurRadius: 8,
           ),
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon != null) ...[
-            Icon(icon, color: AppColors.electricBlue, size: 20),
-            const SizedBox(height: 6),
-          ],
-          Text(value, style: AppTextStyles.statValue),
-          const SizedBox(height: 4),
-          Text(label, style: AppTextStyles.micro.copyWith(color: AppColors.textMuted)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: gradient ?? AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: AppColors.deepSpace,
+              size: 18,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: GoogleFonts.bebasNeue(
+              fontSize: 26,
+              letterSpacing: 0.5,
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textMuted,
+              letterSpacing: 0.2,
+            ),
+          ),
         ],
       ),
     );

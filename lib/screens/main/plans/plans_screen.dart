@@ -7,6 +7,11 @@ import '../../../core/app_text_styles.dart';
 import '../../../providers/plan_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../widgets/app_toast.dart';
+import '../../../widgets/glass_card.dart';
+import '../../../widgets/gradient_text.dart';
+import '../../../widgets/lime_button.dart';
+import '../../../widgets/mesh_gradient_background.dart';
+import '../../../widgets/shimmer.dart';
 import '../../../models/plan_model.dart';
 import 'plan_detail_screen.dart';
 import 'plan_create_workout_screen.dart';
@@ -37,72 +42,79 @@ class _PlansScreenState extends State<PlansScreen> {
     final plansP = context.watch<PlanProvider>();
     final plans = plansP.plans;
 
-    return Column(
-      children: [
-        // Header
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('WORKOUT PLANS', style: AppTextStyles.screenTitle.copyWith(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.lime,
-                    )),
-                    const SizedBox(height: 4),
-                    Text('Create and manage your workout routines',
-                      style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const PlanCreateWorkoutScreen()),
-                  );
-                  _loadPlans();
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.summerOrange, AppColors.sunshineYellow],
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.summerOrange.withOpacity(0.4),
-                        offset: const Offset(0, 4),
-                        blurRadius: 12,
+    return MeshGradientBackground(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GradientText.coralOrange(
+                        'MY PLANS',
+                        style: AppTextStyles.gradientHero.copyWith(fontSize: 28),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Build your perfect routine',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.add_rounded, color: Colors.white, size: 26),
-                ),
+                  GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PlanCreateWorkoutScreen()),
+                      );
+                      _loadPlans();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.vibrantCoral.withAlpha(102),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            // Plans List
+            Expanded(
+              child: plansP.loading
+                  ? Shimmer(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        itemCount: 5,
+                        itemBuilder: (_, i) => ShimmerListItem(height: 100),
+                      ),
+                    )
+                  : plans.isEmpty
+                      ? _buildEmptyState()
+                      : _buildPlansList(plans),
+            ),
+          ],
         ),
-
-        // Plans List
-        Expanded(
-          child: plansP.loading
-              ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.lime, strokeWidth: 2),
-                )
-              : plans.isEmpty
-                  ? _buildEmptyState()
-                  : _buildPlansList(plans),
-        ),
-      ],
+      ),
     );
   }
 
@@ -110,54 +122,60 @@ class _PlansScreenState extends State<PlansScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: AppColors.cardBg,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.borderDefault.withOpacity(0.3)),
+        child: GlassCard(
+          margin: EdgeInsets.zero,
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.vibrantCoral.withAlpha(77),
+                      AppColors.electricOrange.withAlpha(77),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.fitness_center_rounded,
+                  size: 48,
+                  color: AppColors.vibrantCoral,
+                ),
               ),
-              child: Column(
-                children: [
-                  Icon(Icons.fitness_center_outlined, size: 64, color: AppColors.textDim),
-                  const SizedBox(height: 20),
-                  Text(
-                    'No Plans Yet',
-                    style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create your first workout plan to get started',
-                    style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textMuted),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: 180,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const PlanCreateWorkoutScreen()),
-                        );
-                      },
-                      icon: const Icon(Icons.add, color: Colors.white),
-                      label: Text('Create & Start', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.lime,
-                        foregroundColor: AppColors.appBg,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20),
+              GradientText.coralOrange(
+                'No Plans Yet',
+                style: AppTextStyles.gradientHero.copyWith(fontSize: 24),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Create your first workout plan to get started',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: AppColors.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: 200,
+                child: LimeButton(
+                  label: 'Create Plan',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PlanCreateWorkoutScreen()),
+                    );
+                  },
+                  icon: Icons.add_rounded,
+                  fullWidth: true,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -177,89 +195,61 @@ class _PlansScreenState extends State<PlansScreen> {
   Widget _buildPlanCard(PlanModel plan) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.cardBg, AppColors.cardBg.withOpacity(0.9)],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.borderLight.withOpacity(0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.lime.withOpacity(0.06),
-            offset: const Offset(0, 3),
-            blurRadius: 10,
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            offset: const Offset(0, 3),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => PlanDetailScreen(planId: plan.id)),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(12),
+      child: GlassCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PlanDetailScreen(planId: plan.id)),
+          );
+        },
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.lime.withOpacity(0.2), AppColors.lime.withOpacity(0.1)],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.lime.withOpacity(0.3)),
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(Icons.fitness_center_rounded, color: AppColors.lime, size: 28),
+              child: const Icon(Icons.fitness_center_rounded, color: Colors.white, size: 24),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => PlanDetailScreen(planId: plan.id)),
-                );
-              },
+            const SizedBox(width: 16),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     plan.name,
-                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '${plan.workoutDays.length} days • ${plan.totalExercises} exercises',
-                    style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w500),
+                  Row(
+                    children: [
+                      _InfoBadge(
+                        icon: Icons.calendar_today_rounded,
+                        label: '${plan.workoutDays.length} days',
+                      ),
+                      const SizedBox(width: 8),
+                      _InfoBadge(
+                        icon: Icons.fitness_center_rounded,
+                        label: '${plan.totalExercises} exercises',
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.coral.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.delete_outline_rounded, color: AppColors.coral, size: 22),
+            IconButton(
+              icon: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 22),
               onPressed: () => _confirmDelete(plan),
-              padding: const EdgeInsets.all(8),
-              constraints: const BoxConstraints(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -267,29 +257,96 @@ class _PlansScreenState extends State<PlansScreen> {
   Future<void> _confirmDelete(PlanModel plan) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => Dialog(
         backgroundColor: AppColors.cardBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Delete Plan?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-        content: Text(
-          'Are you sure you want to delete "${plan.name}"? This cannot be undone.',
-          style: GoogleFonts.dmSans(color: AppColors.textMuted),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 32),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Delete Plan?',
+                style: GoogleFonts.dmSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Are you sure you want to delete "${plan.name}"? This cannot be undone.',
+                style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx, false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.inputBg,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => Navigator.pop(ctx, true),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Center(
+                              child: Text(
+                                'Delete',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.coral,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text('Delete', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-          ),
-        ],
       ),
     );
 
@@ -302,5 +359,31 @@ class _PlansScreenState extends State<PlansScreen> {
     } catch (e) {
       showToast(context, e.toString(), isError: true);
     }
+  }
+}
+
+class _InfoBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _InfoBadge({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: AppColors.textMuted),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: GoogleFonts.dmSans(
+            fontSize: 12,
+            color: AppColors.textMuted,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
   }
 }
