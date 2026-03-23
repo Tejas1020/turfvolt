@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -35,38 +34,33 @@ class MainShell extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: false,
+      backgroundColor: AppColors.appBg,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.appBg,
         elevation: 0,
         titleSpacing: 20,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardBg.withOpacity(0.92),
-                border: Border(
-                  bottom: BorderSide(color: AppColors.borderDefault.withOpacity(0.5), width: 1),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.summerOrange.withOpacity(0.05),
-                    offset: const Offset(0, 4),
-                    blurRadius: 12,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('TURFVOLT', style: AppTextStyles.appLogo),
+            const Text(
+              'TURFVOLT',
+              style: TextStyle(
+                fontFamily: 'Rosnoc',
+                fontSize: 24,
+                letterSpacing: 3,
+                fontWeight: FontWeight.w700,
+                color: AppColors.lime,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(formattedDate, style: AppTextStyles.secondary.copyWith(
-              fontWeight: FontWeight.w500,
-            )),
+            Text(
+              formattedDate,
+              style: AppTextStyles.secondary.copyWith(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: AppColors.textMuted,
+              ),
+            ),
           ],
         ),
         actions: [
@@ -91,11 +85,11 @@ class MainShell extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [AppColors.summerOrange, AppColors.sunshineYellow],
+                    colors: [AppColors.lime, AppColors.limeDark],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.summerOrange.withOpacity(0.4),
+                      color: AppColors.lime.withAlpha(77),
                       offset: const Offset(0, 2),
                       blurRadius: 8,
                     ),
@@ -107,10 +101,11 @@ class MainShell extends StatelessWidget {
                   child: Center(
                     child: Text(
                       userInitial,
-                      style: GoogleFonts.dmSans(
+                      style: const TextStyle(
+                        fontFamily: 'Rosnoc',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppColors.buttonTextDark,
                       ),
                     ),
                   ),
@@ -120,49 +115,41 @@ class MainShell extends StatelessWidget {
           ),
         ],
       ),
-      body: child,
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.cardBg.withOpacity(0.92),
-              border: Border(
-                top: BorderSide(color: AppColors.borderDefault.withOpacity(0.5), width: 1),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.summerOrange.withOpacity(0.08),
-                  offset: const Offset(0, -4),
-                  blurRadius: 16,
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  offset: const Offset(0, -4),
-                  blurRadius: 12,
-                ),
-              ],
-            ),
+      body: SafeArea(child: child),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20), bottom: Radius.circular(20)),
+            border: Border.all(color: AppColors.borderSubtle, width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20), bottom: Radius.circular(20)),
             child: BottomNavigationBar(
               currentIndex: currentIndex,
               onTap: (i) => context.go(_tabs[i]),
               backgroundColor: Colors.transparent,
               elevation: 0,
-              selectedItemColor: AppColors.summerOrange,
-              unselectedItemColor: AppColors.textMuted,
+              selectedItemColor: AppColors.lime,
+              unselectedItemColor: AppColors.textGrayDark,
               type: BottomNavigationBarType.fixed,
-              selectedLabelStyle: GoogleFonts.dmSans(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+              selectedLabelStyle: const TextStyle(
+                fontFamily: 'Rosnoc',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontFamily: 'Rosnoc',
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
                 letterSpacing: 0.3,
               ),
-              unselectedLabelStyle: GoogleFonts.dmSans(
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-              ),
-              iconSize: 22,
-              selectedFontSize: 10,
-              unselectedFontSize: 10,
+              iconSize: 24,
+              selectedFontSize: 11,
+              unselectedFontSize: 11,
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home_outlined),
@@ -172,7 +159,7 @@ class MainShell extends StatelessWidget {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.fitness_center_outlined),
                   activeIcon: Icon(Icons.fitness_center_rounded),
-                  label: 'Plans',
+                  label: 'Workouts',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.edit_outlined),
@@ -182,7 +169,7 @@ class MainShell extends StatelessWidget {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.bar_chart_outlined),
                   activeIcon: Icon(Icons.bar_chart_rounded),
-                  label: 'Reports',
+                  label: 'Progress',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline),

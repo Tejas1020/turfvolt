@@ -1,77 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 ThemeData appTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: AppColors.appBg,
-  primaryColor: AppColors.roseGold,
+  primaryColor: AppColors.lime,
   colorScheme: ColorScheme.dark(
-    primary: AppColors.roseGold,
-    secondary: AppColors.champagneGold,
-    tertiary: AppColors.accentLight,
+    primary: AppColors.lime,
+    secondary: AppColors.limeMuted,
+    tertiary: AppColors.limeLight,
     surface: AppColors.cardBg,
     error: AppColors.error,
-    onPrimary: AppColors.deepBlack,
-    onSecondary: AppColors.deepBlack,
-    onTertiary: AppColors.deepBlack,
-    onSurface: AppColors.warmCream,
+    onPrimary: AppColors.buttonTextDark,
+    onSecondary: AppColors.buttonTextDark,
+    onTertiary: AppColors.buttonTextDark,
+    onSurface: AppColors.textPrimary,
     onError: Colors.white,
   ),
-  fontFamily: GoogleFonts.dmSans().fontFamily,
+  fontFamily: 'Rosnoc',
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: AppColors.inputBg,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.borderDefault, width: 0.5),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.borderDefault, width: 0.5),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: AppColors.borderSubtle, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.roseGold, width: 1.5),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: AppColors.lime, width: 1.5),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       borderSide: const BorderSide(color: AppColors.error, width: 1.5),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       borderSide: const BorderSide(color: AppColors.error, width: 2),
     ),
-    hintStyle: GoogleFonts.dmSans(
-      color: AppColors.textDim,
+    hintStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.textMuted,
       fontSize: 14,
       letterSpacing: 0.3,
       fontWeight: FontWeight.w400,
     ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.roseGold,
-      foregroundColor: AppColors.deepBlack,
-      elevation: 4,
-      shadowColor: AppColors.roseGold.withAlpha(77),
+      backgroundColor: AppColors.lime,
+      foregroundColor: AppColors.buttonTextDark,
+      elevation: 0,
+      shadowColor: AppColors.lime.withAlpha(77),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24), // Pill shape
       ),
-      textStyle: GoogleFonts.dmSans(
+      textStyle: const TextStyle(fontFamily: 'Rosnoc',
         fontSize: 16,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.3,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.5,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
       minimumSize: const Size(64, 48),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: AppColors.roseGold,
-      textStyle: GoogleFonts.dmSans(
+      foregroundColor: AppColors.lime,
+      textStyle: const TextStyle(fontFamily: 'Rosnoc',
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -80,10 +79,10 @@ ThemeData appTheme = ThemeData(
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: AppColors.warmCream,
-      side: const BorderSide(color: AppColors.borderDefault, width: 1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      textStyle: GoogleFonts.dmSans(
+      foregroundColor: AppColors.textPrimary,
+      side: const BorderSide(color: AppColors.border, width: 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      textStyle: const TextStyle(fontFamily: 'Rosnoc',
         fontSize: 16,
         fontWeight: FontWeight.w600,
       ),
@@ -92,72 +91,74 @@ ThemeData appTheme = ThemeData(
   ),
   cardTheme: CardThemeData(
     color: AppColors.cardBg,
-    elevation: 4,
-    shadowColor: Colors.black.withAlpha(77),
+    elevation: 0,
+    shadowColor: Colors.transparent,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
-      side: const BorderSide(color: AppColors.borderDefault, width: 0.5),
+      side: const BorderSide(color: AppColors.borderSubtle, width: 1),
     ),
+    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
   ),
   dividerTheme: const DividerThemeData(
-    color: AppColors.borderDefault,
+    color: AppColors.border,
     thickness: 0.5,
     space: 1,
   ),
   snackBarTheme: SnackBarThemeData(
     backgroundColor: AppColors.cardBg,
-    contentTextStyle: GoogleFonts.dmSans(
-      color: AppColors.warmCream,
+    contentTextStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.textPrimary,
       fontSize: 14,
       fontWeight: FontWeight.w400,
     ),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     behavior: SnackBarBehavior.floating,
-    elevation: 6,
-    actionTextColor: AppColors.roseGold,
+    elevation: 8,
+    actionTextColor: AppColors.lime,
   ),
   dialogTheme: DialogThemeData(
     backgroundColor: AppColors.cardBg,
-    elevation: 12,
-    shadowColor: Colors.black.withAlpha(102),
+    elevation: 16,
+    shadowColor: Colors.black.withAlpha(153),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    titleTextStyle: GoogleFonts.dmSans(
-      color: AppColors.warmCream,
-      fontSize: 18,
+    titleTextStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.textPrimary,
+      fontSize: 20,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.2,
     ),
-    contentTextStyle: GoogleFonts.dmSans(
+    contentTextStyle: const TextStyle(fontFamily: 'Rosnoc',
       color: AppColors.textMuted,
       fontSize: 14,
       fontWeight: FontWeight.w400,
     ),
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: AppColors.cardBg,
-    selectedItemColor: AppColors.roseGold,
-    unselectedItemColor: AppColors.textMuted,
+    selectedItemColor: AppColors.lime,
+    unselectedItemColor: AppColors.textGrayDark,
     type: BottomNavigationBarType.fixed,
-    elevation: 8,
-    selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
-  ),
-  appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.cardBg,
     elevation: 0,
-    foregroundColor: AppColors.warmCream,
-    titleTextStyle: TextStyle(
-      color: AppColors.warmCream,
-      fontSize: 18,
+    selectedLabelStyle: const TextStyle(fontFamily: 'Rosnoc', fontWeight: FontWeight.w600, fontSize: 11),
+    unselectedLabelStyle: const TextStyle(fontFamily: 'Rosnoc', fontWeight: FontWeight.w400, fontSize: 11),
+  ),
+  appBarTheme: AppBarTheme(
+    backgroundColor: AppColors.appBg,
+    elevation: 0,
+    foregroundColor: AppColors.textPrimary,
+    titleTextStyle: const TextStyle(
+      fontFamily: 'Rosnoc',
+      color: AppColors.textPrimary,
+      fontSize: 20,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.2,
     ),
-    iconTheme: IconThemeData(color: AppColors.warmCream),
+    iconTheme: const IconThemeData(color: AppColors.textPrimary),
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
-    backgroundColor: AppColors.roseGold,
-    foregroundColor: AppColors.deepBlack,
-    elevation: 6,
+    backgroundColor: AppColors.lime,
+    foregroundColor: AppColors.buttonTextDark,
+    elevation: 4,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
     ),
@@ -165,17 +166,17 @@ ThemeData appTheme = ThemeData(
   checkboxTheme: CheckboxThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.roseGold;
+        return AppColors.lime;
       }
       return Colors.transparent;
     }),
-    checkColor: WidgetStateProperty.all(AppColors.deepBlack),
+    checkColor: WidgetStateProperty.all(AppColors.buttonTextDark),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
   ),
   radioTheme: RadioThemeData(
     fillColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.roseGold;
+        return AppColors.lime;
       }
       return AppColors.textDim;
     }),
@@ -183,58 +184,58 @@ ThemeData appTheme = ThemeData(
   switchTheme: SwitchThemeData(
     thumbColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.roseGold;
+        return AppColors.lime;
       }
       return AppColors.textDim;
     }),
     trackColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return AppColors.roseGold.withAlpha(128);
+        return AppColors.limeMuted;
       }
       return AppColors.borderDark;
     }),
   ),
   progressIndicatorTheme: const ProgressIndicatorThemeData(
-    color: AppColors.roseGold,
+    color: AppColors.lime,
     linearTrackColor: AppColors.borderDark,
     circularTrackColor: AppColors.borderDark,
   ),
   sliderTheme: SliderThemeData(
-    activeTrackColor: AppColors.roseGold,
+    activeTrackColor: AppColors.lime,
     inactiveTrackColor: AppColors.borderDark,
-    thumbColor: AppColors.roseGold,
-    overlayColor: AppColors.roseGold.withAlpha(51),
-    valueIndicatorColor: AppColors.roseGold,
-    valueIndicatorTextStyle: GoogleFonts.dmSans(
-      color: AppColors.deepBlack,
+    thumbColor: AppColors.lime,
+    overlayColor: AppColors.lime.withAlpha(51),
+    valueIndicatorColor: AppColors.lime,
+    valueIndicatorTextStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.buttonTextDark,
       fontSize: 12,
       fontWeight: FontWeight.w600,
     ),
   ),
   chipTheme: ChipThemeData(
-    backgroundColor: AppColors.inputBg,
-    selectedColor: AppColors.roseGold,
-    labelStyle: GoogleFonts.dmSans(
-      color: AppColors.warmCream,
-      fontSize: 13,
-      fontWeight: FontWeight.w500,
+    backgroundColor: AppColors.cardBgElevated,
+    selectedColor: AppColors.lime,
+    labelStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.textPrimary,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
     ),
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    side: const BorderSide(color: AppColors.borderDefault, width: 0.5),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    side: const BorderSide(color: AppColors.borderSubtle, width: 1),
   ),
   listTileTheme: ListTileThemeData(
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    titleTextStyle: GoogleFonts.dmSans(
-      color: AppColors.warmCream,
+    titleTextStyle: const TextStyle(fontFamily: 'Rosnoc',
+      color: AppColors.textPrimary,
       fontSize: 16,
       fontWeight: FontWeight.w600,
     ),
-    subtitleTextStyle: GoogleFonts.dmSans(
+    subtitleTextStyle: const TextStyle(fontFamily: 'Rosnoc',
       color: AppColors.textMuted,
       fontSize: 14,
       fontWeight: FontWeight.w400,
     ),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
   ),
 );
